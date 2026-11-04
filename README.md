@@ -40,11 +40,28 @@ The application will launch on `http://localhost:3000`.
 npx --yes tsx --test src/utils/tourFilters.test.ts
 ```
 
-### 4. Build for Production
+## Netlify & GitHub Deployment
+
+### Deploying to Netlify (e.g. `golisexpedition.netlify.app`)
+
+This project is pre-configured for Netlify:
+1. **SPA Redirects**: `public/_redirects` ensures direct navigation to `/tours`, `/admin`, `/destinations`, etc. loads `index.html` with HTTP 200 without 404 errors.
+2. **Build Settings**: `netlify.toml` automatically configures:
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+3. **Image Bundling**: All high-definition expedition photography assets in `src/assets/images/` and `public/images/` are bundled and hashed by Vite so images load across any subdomain, domain, or CDN.
+
+### Connecting to GitHub & Updating Netlify
+
+To push this project to your GitHub repository:
 ```bash
-npm run build
+# 1. Add your GitHub repository remote (replace YOUR_USERNAME and YOUR_REPO)
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+
+# 2. Push main branch
+git push -u origin main
 ```
 
-## Architecture Notes
-- **Frontend-Only**: No backend, database, or external APIs are connected. All tour data, itineraries, pricing calculations, filters, and blog posts are driven by typed local datasets in `/src/data/`.
-- **Somaliland-Exclusive**: Exclusively showcases Somaliland destinations and cultural heritage.
+If your Netlify site (`golisexpedition.netlify.app`) is connected to your GitHub repository:
+- Any new push to `main` triggers an automatic build and deploy on Netlify.
+- All images, routes, and admin login features will automatically be live.

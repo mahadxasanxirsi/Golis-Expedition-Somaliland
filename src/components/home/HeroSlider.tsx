@@ -85,6 +85,7 @@ export const HeroSlider: React.FC = () => {
               <ImageWithFallback
                 src={slide.image}
                 alt={slide.heading}
+                loading={idx === 0 ? 'eager' : 'lazy'}
                 className="w-full h-full object-cover object-center transform scale-105 transition-transform duration-10000"
               />
               {/* Cinematic Vignette Scrim */}
