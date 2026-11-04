@@ -14,9 +14,14 @@ import {
   Twitter,
   Youtube,
   ShieldAlert,
+  AlertCircle,
 } from 'lucide-react';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { COMPANY_INFO } from '../data/company';
+
+// Web3Forms Form Access Key (Vite environment variable with user verified default fallback)
+const WEB3FORMS_ACCESS_KEY =
+  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'acc99d81-43f3-4405-994c-c3b9ab640030';
 
 export const Contact: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -28,6 +33,7 @@ export const Contact: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -37,7 +43,7 @@ export const Contact: React.FC = () => {
     if (!fullName.trim()) newErrors.fullName = 'Full name is required';
     if (!email.trim()) {
       newErrors.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
     if (!phone.trim()) newErrors.phone = 'Phone number is required';
@@ -48,23 +54,50 @@ export const Contact: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || loading) return;
 
     setLoading(true);
+    setApiError(null);
 
-    // Simulate frontend submission latency (no external API calls)
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append('access_key', WEB3FORMS_ACCESS_KEY);
+      formData.append('name', fullName.trim());
+      formData.append('email', email.trim());
+      formData.append('phone', phone.trim());
+      formData.append('subject', 'New Expedition Inquiry - Golis Expeditions');
+      formData.append('inquiry_subject', subject.trim());
+      formData.append('message', message.trim());
+      formData.append('from_name', fullName.trim());
+      // Honeypot spam protection (remains blank for human submissions)
+      formData.append('botcheck', '');
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitted(true);
+        setFullName('');
+        setEmail('');
+        setPhone('');
+        setSubject('');
+        setMessage('');
+        setErrors({});
+        setApiError(null);
+      } else {
+        setApiError('Sorry, your message could not be sent. Please try again.');
+      }
+    } catch {
+      setApiError('Sorry, your message could not be sent. Please try again.');
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-      setFullName('');
-      setEmail('');
-      setPhone('');
-      setSubject('');
-      setMessage('');
-      setErrors({});
-    }, 1200);
+    }
   };
 
   const faqs = [
@@ -237,7 +270,7 @@ export const Contact: React.FC = () => {
             Send an Expedition Message
           </h2>
           <p className="text-xs text-slate-500 mb-6">
-            Fill in the details below. This is an interactive frontend demonstration form.
+            Fill in the details below to reach our expedition desk in Hargeisa.
           </p>
 
           {submitted ? (
@@ -253,12 +286,12 @@ export const Contact: React.FC = () => {
                 Message Sent Successfully!
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
-                Thank you for reaching out. In an actual deployment, our travel consultant in Hargeisa would respond within one business day.
+                Thank you! Your message has been sent successfully. Our team will contact you soon.
               </p>
               <button
                 type="button"
                 onClick={() => setSubmitted(false)}
-                aria-label="Send another demonstration message"
+                aria-label="Send another message"
                 className="text-xs font-bold text-[#0F382A] underline cursor-pointer"
               >
                 Send Another Message
@@ -266,6 +299,26 @@ export const Contact: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {/* Web3Forms Honeypot Spam Protection */}
+              <input
+                type="checkbox"
+                name="botcheck"
+                className="hidden"
+                style={{ display: 'none' }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+
+              {apiError && (
+                <div
+                  role="alert"
+                  className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs flex items-start gap-2"
+                >
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>{apiError}</span>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="contact-full-name" className="block text-xs font-semibold text-slate-700 mb-1">
@@ -273,6 +326,7 @@ export const Contact: React.FC = () => {
                   </label>
                   <input
                     id="contact-full-name"
+                    name="name"
                     type="text"
                     value={fullName}
                     onChange={(e) => {
@@ -298,6 +352,7 @@ export const Contact: React.FC = () => {
                   </label>
                   <input
                     id="contact-email"
+                    name="email"
                     type="email"
                     value={email}
                     onChange={(e) => {
@@ -325,6 +380,7 @@ export const Contact: React.FC = () => {
                   </label>
                   <input
                     id="contact-phone"
+                    name="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => {
@@ -350,6 +406,7 @@ export const Contact: React.FC = () => {
                   </label>
                   <input
                     id="contact-subject"
+                    name="subject"
                     type="text"
                     value={subject}
                     onChange={(e) => {
@@ -376,6 +433,7 @@ export const Contact: React.FC = () => {
                 </label>
                 <textarea
                   id="contact-message"
+                  name="message"
                   rows={4}
                   value={message}
                   onChange={(e) => {
@@ -398,24 +456,24 @@ export const Contact: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                aria-label="Send expedition message demo"
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] text-white font-bold text-xs sm:text-sm py-3 rounded-lg shadow transition-colors cursor-pointer"
+                aria-label="Send expedition message"
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm py-3 rounded-lg shadow transition-colors cursor-pointer"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" aria-hidden="true" />
-                    <span>Transmitting Message...</span>
+                    <span>Sending your message...</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 text-[#C5A059]" aria-hidden="true" />
-                    <span>Send Message (Demo)</span>
+                    <span>Send Message</span>
                   </>
                 )}
               </button>
 
               <div className="text-[11px] text-slate-400 text-center">
-                * Demonstration only. No emails are transmitted externally.
+                Your message will be delivered directly to our expedition team in Hargeisa.
               </div>
             </form>
           )}
