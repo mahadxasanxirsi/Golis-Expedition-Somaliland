@@ -1,0 +1,6 @@
+{
+  "name": "Golis Expeditions - Somaliland Tourism & Travel",
+  "description": "Premium travel and tourism portal for Somaliland expeditions, historical rock art tours at Laas Geel, coastal journeys to Berbera and Zeila, and high-altitude mountain treks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

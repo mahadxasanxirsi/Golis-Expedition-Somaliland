@@ -1,0 +1,513 @@
+omplete Website Development Guide: Macrobia Expeditions
+I inspected the live website: https://macrobians.com/.
+
+The website is Macrobia Expeditions, a travel and tourism platform specializing in tours across Somaliland, Djibouti, Somalia and Ethiopia.
+
+You are looking to build a website with similar appearance, pages, functionality and user experience — not simply a homepage that looks similar.
+
+The correct project type is a Full-Stack Travel and Tour Booking Website.
+
+The existing website includes tour listings, destination information, tour packages, travel information, customer testimonials, galleries and contact facilities. 
+Macrobia Expeditions
+
+1. Website structure and pages
+The existing website has a relatively large navigation system with dropdown menus. Here is the page structure you should reproduce.
+Page / Section	Purpose
+Home	Main landing page and featured tours
+About Us	Company background and mission
+Why Travel With Us	Reasons to choose the company
+Meet the Team	Guides, staff and management
+Testimonials	Customer experiences and reviews
+Policy	Travel policies and conditions
+Tour Packages	All available travel packages
+Upcoming Tours	Scheduled tours and departure dates
+Combined Tours	Tours covering multiple countries
+Somaliland Tours	Packages within Somaliland
+Djibouti Tours	Packages within Djibouti
+Somalia Tours	Packages within Somalia
+Ethiopia Tours	Packages within Ethiopia
+Corporate Travel	Business travel arrangements
+Destination Information	Destination and visa information
+Gallery	Photos and videos
+Contact	Contact details and enquiry form
+
+This reflects the existing navigation and its subpages. 
+Macrobia Expeditions+2
+
+2. Homepage design — what you need to build
+Your homepage should follow this structure, from top to bottom.
+Social media links
+
+Upcoming Tour ↗
+
+
+MACROBIA
+☰ MENU
+
+
+Home　 About Us　 Tour Packages　 Corporate Travel　 Destinations　 Gallery　 Contact
+
+
+
+
+
+
+
+
+x.com
+
+
+Discover the Horn of Africa
+Explore Somaliland, Djibouti, Somalia and beyond.
+Explore our tours
+
+Illustrative homepage layout, not a screenshot of the live website.
+Section 1 — Header and navigation. Logo, navigation links, social media icons, telephone and Upcoming Tour button.
+
+Section 2 — Hero image slider
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10
+
+
+
+
+
+
+
+
+
+
+A large destination image with an attractive heading, descriptive text and a button leading to tours.
+
+
+Section 3 — Introduction
+Welcome to Macrobia Expeditions
+Explain the travel company's background, experience and destinations, with photographs and award recognition.
+
+
+Section 4 — Upcoming tours
+
+
+
+
+
+
+
+
+
+Djibouti Discovery
+5 Days / 4 Nights
+
+
+
+
+
+
+
+
+
+Somaliland Discovery
+2 Days / 1 Night
+
+Each package should have View Details or Explore Tour.
+
+Section 5 — Company story
+
+Image on one side, company history and Read More on the other.
+
+Section 6 — Social impact
+
+Explain community support and responsible tourism.
+
+Section 7 — Travel blog
+
+Articles, destination guides and travel advice.
+
+Section 8 — Customer testimonials
+
+Customer reviews, names, photographs and ratings.
+
+Section 9 — Footer
+
+Logo, contact information, navigation, social accounts, copyright and privacy policy.
+
+The homepage's actual content follows this general order, including tours, company story, social impact, blog, partners and testimonials. 
+Macrobia Expeditions+1
+
+3. Tour package functionality
+This is one of the most important parts of the project.
+
+The website should have two different types of tour pages.
+
+A. Tour listing page
+
+For example:
+
+/tours/somaliland
+
+
+
+
+
+
+
+dribbble.com
+
+
+Display multiple package cards with:
+- Tour photograph.
+- Package name.
+- Country or destination.
+- Duration.
+- Short description.
+- View Details button.
+Users should be able to filter tours by country, duration and tour category.
+
+B. Individual tour details page
+
+For example:
+
+/tours/somaliland-introduction
+
+
+
+
+
+
+
+dribbble.com
+
+
+Each tour needs the following information:
+Component	Information
+Tour title	Somaliland Introduction Tour
+Duration	1 Day
+Destination	Hargeisa and Laas Geel
+Overview	Description of the trip
+Itinerary	Day-by-day activities
+Gallery	Tour photographs
+Included	Transport, guide, permits, etc.
+Excluded	Flights, personal expenses, etc.
+Accommodation	Hotels and accommodation details
+Travel information	Visa and travel requirements
+Enquiry form	Request information about the tour
+
+These sections are present on the live Somaliland Introduction Tour page. 
+Itinerary
+
+4. How the website actually works
+This is the most important distinction between a normal static website and a full-stack website.
+
+The visitor's journey works approximately as follows:
+#chatgpt-mermaid-_r_hp_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_hp_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_hp_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_hp_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_hp_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_hp_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_hp_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_hp_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_hp_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_hp_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_hp_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_hp_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_hp_ p{margin:0;}#chatgpt-mermaid-_r_hp_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_hp_ .label text,#chatgpt-mermaid-_r_hp_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .node rect,#chatgpt-mermaid-_r_hp_ .node circle,#chatgpt-mermaid-_r_hp_ .node ellipse,#chatgpt-mermaid-_r_hp_ .node polygon,#chatgpt-mermaid-_r_hp_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .rough-node .label text,#chatgpt-mermaid-_r_hp_ .node .label text,#chatgpt-mermaid-_r_hp_ .image-shape .label,#chatgpt-mermaid-_r_hp_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_hp_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .rough-node .label,#chatgpt-mermaid-_r_hp_ .node .label,#chatgpt-mermaid-_r_hp_ .image-shape .label,#chatgpt-mermaid-_r_hp_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_hp_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_hp_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_hp_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-_r_hp_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-_r_hp_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_hp_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_hp_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_hp_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-_r_hp_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_hp_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_hp_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_hp_ .icon-shape,#chatgpt-mermaid-_r_hp_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_hp_ .icon-shape p,#chatgpt-mermaid-_r_hp_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-_r_hp_ .icon-shape .label rect,#chatgpt-mermaid-_r_hp_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_hp_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_hp_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_hp_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_hp_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_hp_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_hp_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_hp_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_hp_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_hp_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_hp_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_hp_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_hp_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_hp_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_hp_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_hp_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_hp_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_hp_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_hp_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_hp_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .node rect,#chatgpt-mermaid-_r_hp_ .node circle,#chatgpt-mermaid-_r_hp_ .node ellipse,#chatgpt-mermaid-_r_hp_ .node polygon,#chatgpt-mermaid-_r_hp_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_hp_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_hp_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_hp_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_hp_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_hp_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Visitor opens websiteHomepageBrowse tour packagesSelect destinationOpen tour detailsRead itinerary and imagesComplete enquiry formFrontend validationBackend APIDatabase saves enquiryAdmin receives notificationAdmin contacts customerDiscuss price and availabilityConfirm travel arrangements
+
+
+
+
+
+Example of how the enquiry process works:
+
+A visitor from another country opens your website and chooses the Somaliland Introduction Tour.
+
+They enter:
+- Full name
+- Email address
+- Tour package
+- Telephone number
+- Message
+The backend receives the form, validates the information and saves it to the database. The company receives a notification and contacts the customer to discuss arrangements.
+
+The public forms I inspected are enquiry forms. I did not find evidence of an integrated online payment or instant-confirmation checkout. The internal administration and payment arrangements cannot be established from the public pages. 
+Itinerary+1
+
+5. Recommended technologies — Frontend and Backend
+For a professional recreation, I recommend a modern full-stack architecture.
+Technology stack
+Frontend
+
+
+
+
+
+
+
+
+
+React.js / Next.js
+Build website pages, navigation, components and dynamic content.
+
+
+
+
+
+
+
+
+
+
+Tailwind CSS
+Responsive design, layouts, cards, typography and styling.
+
+
+
+
+
+
+
+
+
+
+TypeScript
+Type safety and maintainable application code.
+
+
+
+Backend
+
+
+
+
+
+
+
+
+
+Node.js
+JavaScript runtime for backend operations.
+
+
+
+
+
+
+
+
+
+
+Express.js
+REST API, routing, authentication and business logic.
+
+
+
+Database and services
+
+
+
+
+
+
+
+
+
+PostgreSQL
+Store tours, destinations, enquiries, users and bookings.
+
+
+
+
+
+
+
+
+
+
+Prisma ORM
+Connect your Express application to PostgreSQL.
+
+
+
+
+
+
+
+
+
+
+Cloudinary
+Upload and manage tour images and gallery photographs.
+
+
+
+Other necessary tools
+- JWT or secure session authentication for administrators.
+- Zod for input validation.
+- Nodemailer or an email delivery service for notifications.
+- Google Maps for destination locations.
+- Git and GitHub for version control.
+
+Since you have worked with React, Tailwind CSS and Express.js, this architecture also fits your existing development direction. 
+How the architecture connects
+#chatgpt-mermaid-_r_i0_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_i0_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_i0_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_i0_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_i0_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_i0_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_i0_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_i0_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_i0_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_i0_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i0_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i0_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_i0_ p{margin:0;}#chatgpt-mermaid-_r_i0_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_i0_ .label text,#chatgpt-mermaid-_r_i0_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .node rect,#chatgpt-mermaid-_r_i0_ .node circle,#chatgpt-mermaid-_r_i0_ .node ellipse,#chatgpt-mermaid-_r_i0_ .node polygon,#chatgpt-mermaid-_r_i0_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .rough-node .label text,#chatgpt-mermaid-_r_i0_ .node .label text,#chatgpt-mermaid-_r_i0_ .image-shape .label,#chatgpt-mermaid-_r_i0_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_i0_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .rough-node .label,#chatgpt-mermaid-_r_i0_ .node .label,#chatgpt-mermaid-_r_i0_ .image-shape .label,#chatgpt-mermaid-_r_i0_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_i0_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_i0_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i0_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i0_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-_r_i0_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_i0_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_i0_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_i0_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-_r_i0_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_i0_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i0_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_i0_ .icon-shape,#chatgpt-mermaid-_r_i0_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-_r_i0_ .icon-shape p,#chatgpt-mermaid-_r_i0_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-_r_i0_ .icon-shape .label rect,#chatgpt-mermaid-_r_i0_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_i0_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_i0_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_i0_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_i0_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_i0_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_i0_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i0_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_i0_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_i0_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i0_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_i0_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_i0_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i0_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_i0_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i0_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_i0_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-_r_i0_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_i0_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_i0_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .node rect,#chatgpt-mermaid-_r_i0_ .node circle,#chatgpt-mermaid-_r_i0_ .node ellipse,#chatgpt-mermaid-_r_i0_ .node polygon,#chatgpt-mermaid-_r_i0_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_i0_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_i0_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_i0_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_i0_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i0_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Visitor / CustomerReact / Next.js FrontendExpress REST APIAuthentication MiddlewareBusiness Logic / ServicesPrisma ORMPostgreSQL DatabaseCloudinary Image StorageEmail Notification ServiceAdmin Dashboard
+
+
+
+
+
+One important recommendation: use Next.js with Tailwind CSS for the public website, because search engine visibility is particularly important for travel destinations and tour packages. Keep Express.js as the separate API backend.
+6. Database design
+You need a properly structured database rather than storing tour information directly inside frontend components.
+
+Here is the database structure I recommend.
+Database table	What it stores
+users	Admin accounts and user permissions
+destinations	Somaliland, Djibouti, Somalia, Ethiopia
+tour_categories	Country-based tour categories
+tours	Tour names, descriptions, duration and images
+tour_itineraries	Activities for each day
+tour_images	Tour photographs
+tour_departures	Scheduled tour dates
+inquiries	Customer tour enquiries
+testimonials	Customer reviews
+gallery	Company photos and videos
+contact_messages	General contact requests
+
+Example database relationship:
+#chatgpt-mermaid-_r_i7_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_i7_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_i7_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_i7_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-_r_i7_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i7_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_i7_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_i7_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_i7_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_i7_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_i7_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_i7_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i7_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-_r_i7_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_i7_ p{margin:0;}#chatgpt-mermaid-_r_i7_ .entityBox{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_i7_ .relationshipLabelBox{fill:rgb(48, 48, 48);opacity:0.7;background-color:rgb(48, 48, 48);}#chatgpt-mermaid-_r_i7_ .relationshipLabelBox rect{opacity:0.5;}#chatgpt-mermaid-_r_i7_ .labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-_r_i7_ .edgeLabel{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-_r_i7_ .edgeLabel .label rect{fill:rgb(0, 0, 0);}#chatgpt-mermaid-_r_i7_ .edgeLabel .label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i7_ .edgeLabel .label{fill:rgb(31, 78, 148);font-size:14px;}#chatgpt-mermaid-_r_i7_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-_r_i7_ .edge-pattern-dashed{stroke-dasharray:8,8;}#chatgpt-mermaid-_r_i7_ .node rect,#chatgpt-mermaid-_r_i7_ .node circle,#chatgpt-mermaid-_r_i7_ .node ellipse,#chatgpt-mermaid-_r_i7_ .node polygon{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-_r_i7_ .relationshipLine{stroke:rgb(175, 175, 175);stroke-width:1px;fill:none;}#chatgpt-mermaid-_r_i7_ .marker{fill:none!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-_r_i7_ [data-look=neo].labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-_r_i7_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_i7_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_i7_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_i7_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i7_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_i7_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_i7_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i7_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_i7_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_i7_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i7_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_i7_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_i7_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}DESTINATIONSTOURSTOUR_CATEGORIESTOUR_ITINERARIESTOUR_IMAGESTOUR_DEPARTURESINQUIRIESUSERScontainscategorizeshasdisplaysschedulesreceivesmanages
+
+
+
+
+
+For example, one destination can have many tours, and one tour can have many itinerary days, photos and customer enquiries.
+7. Backend API endpoints
+These are the main REST API endpoints you should implement.
+Method	API endpoint	Function
+GET	/api/tours	Get all published tours
+GET	/api/tours/:slug	Get one tour and its details
+GET	/api/destinations	Get destinations
+GET	/api/departures	Get upcoming departures
+POST	/api/inquiries	Submit a tour enquiry
+POST	/api/contact	Send a contact message
+GET	/api/testimonials	Get customer reviews
+POST	/api/admin/login	Administrator login
+POST	/api/admin/tours	Create a tour
+PATCH	/api/admin/tours/:id	Update a tour
+DELETE	/api/admin/tours/:id	Delete a tour
+GET	/api/admin/inquiries	View customer enquiries
+PATCH	/api/admin/inquiries/:id	Update enquiry status
+
+The admin endpoints must be protected by authentication and authorization.
+8. Admin dashboard — the most important addition
+A proper tourism website needs an administration system. You should not require a developer to edit the source code every time the company wants to add a tour.
+
+
+
+
+
+
+
+dribbble.com
+
+
+The dashboard should have:
+Dashboard module	Administrator capability
+Dashboard	See statistics and recent enquiries
+Tours	Add, edit, publish and delete tours
+Destinations	Manage countries and locations
+Itineraries	Add and edit daily activities
+Upcoming tours	Manage departure dates
+Inquiries	View and respond to enquiries
+Testimonials	Manage customer reviews
+Gallery	Upload and delete photos/videos
+Team	Manage staff profiles
+Website content	Edit homepage, About Us and other pages
+
+For enquiry management, use these statuses:
+
+NEW
+ CONTACTED
+ QUOTED
+ CONFIRMED
+ CANCELLED
+
+
+An administrator should be able to change a customer's enquiry status and record the communication history.
+9. Recommended project folder structure
+I recommend separating the frontend and backend so the project remains maintainable.
+macrobia-travel-platform/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx
+│   │   │   ├── about/
+│   │   │   ├── tours/
+│   │   │   ├── destinations/
+│   │   │   ├── corporate-travel/
+│   │   │   ├── gallery/
+│   │   │   ├── contact/
+│   │   │   └── admin/
+│   │   ├── components/
+│   │   │   ├── Header.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── HeroSlider.tsx
+│   │   │   ├── TourCard.tsx
+│   │   │   ├── TourFilter.tsx
+│   │   │   └── InquiryForm.tsx
+│   │   ├── features/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   └── types/
+│   └── package.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   ├── validators/
+│   │   ├── utils/
+│   │   └── server.ts
+│   ├── prisma/
+│   │   └── schema.prisma
+│   └── package.json
+│
+├── .gitignore
+└── README.md
+
+
+10. Development roadmap
+Build the website in this order:
+1. Project setup
+   
+   Create the GitHub repository, Next.js frontend, Express backend and PostgreSQL database.
+2. Database and API
+   
+   Create the database tables, Prisma relationships, REST API endpoints and validation.
+3. Website UI
+   
+   Build the header, navigation, homepage, tour cards, destination pages and footer.
+4. Tour management
+   
+   Implement tour categories, detailed tour pages, itineraries, images and departure schedules.
+5. Enquiry system
+   
+   Connect frontend forms to the backend, save enquiries and send email notifications.
+6. Admin dashboard
+   
+   Implement administrator authentication, content management and enquiry tracking.
+7. Testing and deployment
+   
+   Test mobile responsiveness, security, loading speed, SEO, forms and API functionality before deployment.

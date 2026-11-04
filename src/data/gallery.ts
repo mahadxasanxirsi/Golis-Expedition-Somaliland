@@ -1,0 +1,112 @@
+import { GalleryItem, VideoItem } from '../types';
+import { SOMALILAND_IMAGES } from './images';
+
+export const GALLERY_PHOTOS: GalleryItem[] = [
+  {
+    id: 'gal-1',
+    title: 'Ceremonial Cattle Murals at Laas Geel',
+    category: 'Archaeology',
+    location: 'Laas Geel Rock Shelters, Somaliland',
+    image: SOMALILAND_IMAGES.laasGeel,
+    caption: 'Ancient ochre cave art depicting humped longhorn cattle adorned with radiating headpieces and ceremonial necklaces.',
+  },
+  {
+    id: 'gal-2',
+    title: 'Azure Waters of Bathelo Beach',
+    category: 'Coast & Sea',
+    location: 'Berbera Coast, Sahil Region',
+    image: SOMALILAND_IMAGES.berberaCoast,
+    caption: 'Crystalline waters of the Gulf of Aden meeting golden sands near historic Berbera.',
+  },
+  {
+    id: 'gal-3',
+    title: 'Winding Switchbacks of Sheikh Pass',
+    category: 'Mountains',
+    location: 'Sheikh, Golis Mountains',
+    image: SOMALILAND_IMAGES.sheikhMountains,
+    caption: 'Scenic highland pass cutting through dramatic limestone canyons of the Golis escarpment.',
+  },
+  {
+    id: 'gal-4',
+    title: 'Twilight Glow Over Hargeisa & Naasa Hablood',
+    category: 'Culture & City',
+    location: 'Hargeisa, Maroodi Jeex Region',
+    image: SOMALILAND_IMAGES.hargeisaCity,
+    caption: 'Panoramic sunset view over the vibrant capital with the iconic twin mountains rising on the desert horizon.',
+  },
+  {
+    id: 'gal-5',
+    title: 'Ancient Coral Stone Fortresses of Zeila',
+    category: 'Archaeology',
+    location: 'Zeila (Saylac), Awdal Coast',
+    image: SOMALILAND_IMAGES.zeilaHeritage,
+    caption: 'Maritime ruins and ancient coral arches of the medieval Adal Sultanate on the northern coast.',
+  },
+  {
+    id: 'gal-6',
+    title: 'Coastal Harbor & Traditional Dhows',
+    category: 'Coast & Sea',
+    location: 'Berbera Seaport, Somaliland',
+    image: SOMALILAND_IMAGES.berberaCoast,
+    caption: 'Traditional wooden dhows anchored along the warm coastal lagoons of the Gulf of Aden.',
+  },
+  {
+    id: 'gal-7',
+    title: 'High Alpine Escarpment of the Golis Range',
+    category: 'Mountains',
+    location: 'Sheikh Highlands, Somaliland',
+    image: SOMALILAND_IMAGES.sheikhMountains,
+    caption: 'Deep gorges, juniper tree groves, and cool mountain air overlooking the Guban plain.',
+  },
+  {
+    id: 'gal-8',
+    title: 'Neolithic Cave Alcove & Field Study',
+    category: 'Archaeology',
+    location: 'Laas Geel Cave 1, Somaliland',
+    image: SOMALILAND_IMAGES.laasGeel,
+    caption: 'Expedition archaeologists and site guardians examining neolithic pigment compositions.',
+  },
+  {
+    id: 'gal-9',
+    title: 'Daallo Forest & Cal Madow Escarpment',
+    category: 'Mountains',
+    location: 'Erigavo (Ceerigaabo), Sanaag Region',
+    image: SOMALILAND_IMAGES.erigavoDaallo,
+    caption: 'Ancient juniper trees, rolling mist, and sheer limestone cliffs dropping toward the Gulf of Aden in Sanaag.',
+  },
+];
+
+export const GALLERY_VIDEOS: VideoItem[] = [
+  {
+    id: 'vid-1',
+    title: 'Laas Geel: Timeless Cave Art of Somaliland',
+    duration: '4:15 min',
+    thumbnail: SOMALILAND_IMAGES.laasGeel,
+    location: 'Laas Geel, Maroodi Jeex',
+    description: 'A cinematic drone and high-resolution exploration inside the prehistoric rock shelters of Laas Geel with expert commentary on Neolithic pastoralism.',
+  },
+  {
+    id: 'vid-2',
+    title: 'Across the Golis: The Sheikh Mountain Pass Expedition',
+    duration: '3:45 min',
+    thumbnail: SOMALILAND_IMAGES.sheikhMountains,
+    location: 'Sheikh, Sahil Region',
+    description: 'Experience the exhilarating drive up the switchback pass road, ascending into the mist-crowned heights of the Golis Mountain range.',
+  },
+  {
+    id: 'vid-3',
+    title: 'Berbera: Maritime Gateway on the Gulf of Aden',
+    duration: '5:10 min',
+    thumbnail: SOMALILAND_IMAGES.berberaCoast,
+    location: 'Berbera, Sahil Region',
+    description: 'From ancient Ottoman coral stone streets to crystal clear waters of Bathelo Beach, journey along Somaliland’s historic coastline.',
+  },
+  {
+    id: 'vid-4',
+    title: 'Voices of Hargeisa: Capital Life & Culture',
+    duration: '6:20 min',
+    thumbnail: SOMALILAND_IMAGES.hargeisaCity,
+    location: 'Hargeisa Capital',
+    description: 'An intimate glimpse into the bustling open-air financial market, morning livestock auctions, and contemporary poetry salons of Hargeisa.',
+  },
+];
