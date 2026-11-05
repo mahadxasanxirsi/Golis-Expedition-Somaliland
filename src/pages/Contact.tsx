@@ -66,16 +66,8 @@ export const Contact: React.FC = () => {
     setApiError(null);
 
     try {
-      // 1. Save customer inquiry to Supabase database
-      const dbResult = await submitInquiry({
-        name: fullName,
-        email,
-        phone,
-        inquiry_subject: subject,
-        message,
-      });
-
-      // 2. Dispatch email notification to personal Gmail through Web3Forms
+      // 1. Dispatch email notification to personal Gmail through Web3Forms
+      let emailDispatched = false;
       try {
         const formData = new FormData();
         formData.append('access_key', WEB3FORMS_ACCESS_KEY);
@@ -95,15 +87,26 @@ export const Contact: React.FC = () => {
         });
 
         const data = await response.json();
-        if (!response.ok || !data.success) {
-          console.warn('Web3Forms notification log:', data?.message || 'Email dispatch non-blocking notice');
+        if (response.ok && data?.success) {
+          emailDispatched = true;
+        } else {
+          console.warn('Web3Forms dispatch response:', data?.message);
         }
       } catch (emailErr) {
-        // Safe logging: Inquiry remains stored in Supabase even if email service has a transient issue
-        console.warn('Web3Forms delivery non-blocking note:', emailErr);
+        console.warn('Web3Forms delivery notice:', emailErr);
       }
 
-      if (dbResult.success) {
+      // 2. Save customer inquiry to Supabase database
+      const dbResult = await submitInquiry({
+        name: fullName,
+        email,
+        phone,
+        inquiry_subject: subject,
+        message,
+      });
+
+      // If either Web3Forms delivered to Gmail or Supabase saved the inquiry, report success
+      if (dbResult.success || emailDispatched) {
         setSubmitted(true);
         setFullName('');
         setEmail('');
@@ -113,10 +116,12 @@ export const Contact: React.FC = () => {
         setErrors({});
         setApiError(null);
       } else {
-        setApiError('Sorry, your message could not be sent. Please try again.');
+        setApiError(
+          dbResult.error || 'Sorry, your message could not be sent. Please try again.'
+        );
       }
-    } catch {
-      setApiError('Sorry, your message could not be sent. Please try again.');
+    } catch (err: any) {
+      setApiError(err?.message || 'Sorry, your message could not be sent. Please try again.');
     } finally {
       setLoading(false);
     }
