@@ -1284,20 +1284,28 @@ export const Admin: React.FC = () => {
 
               <div className="space-y-3 text-xs text-slate-600">
                 <p>
-                  To connect your Supabase project, set these variables in Netlify or your{' '}
-                  <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">.env.local</code>:
+                  To connect your live Supabase database to Netlify, add these 3 variables in your{' '}
+                  <a
+                    href="https://app.netlify.com/sites/golis-expedition-somaliland/configuration/env"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#0F382A] font-bold underline hover:text-[#164E3A]"
+                  >
+                    Netlify Environment Variables Settings
+                  </a>:
                 </p>
                 <div className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-[11px] space-y-1 overflow-x-auto">
-                  <div className="text-slate-400"># Netlify Site Configuration -&gt; Environment Variables</div>
-                  <div>VITE_SUPABASE_URL=https://your-project-id.supabase.co</div>
-                  <div>VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-anon-key</div>
+                  <div className="text-emerald-400"># Netlify Site Configuration -&gt; Environment Variables</div>
+                  <div>VITE_SUPABASE_URL=https://xxcarxtrjjjzyexljrkr.supabase.co</div>
+                  <div className="text-amber-300">VITE_SUPABASE_PUBLISHABLE_KEY=(paste your anon public key from Supabase API settings)</div>
                   <div>VITE_WEB3FORMS_ACCESS_KEY=acc99d81-43f3-4405-994c-c3b9ab640030</div>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  The complete SQL script is saved in{' '}
-                  <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">supabase-schema.sql</code>{' '}
-                  in your project root. Run it in your Supabase SQL Editor to configure all tables and RLS security rules.
-                </p>
+                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] space-y-1">
+                  <span className="font-bold block">Where to get your anon public key:</span>
+                  <span>1. Open <a href="https://supabase.com/dashboard/project/xxcarxtrjjjzyexljrkr/settings/api" target="_blank" rel="noreferrer" className="underline font-bold">Supabase API Settings</a>.</span><br />
+                  <span>2. Copy the key labeled <strong>anon public</strong> (starts with <code>eyJhbGciOi...</code>).</span><br />
+                  <span>3. Paste it into Netlify as <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>, then trigger a <strong>Clear cache and deploy site</strong>.</span>
+                </div>
               </div>
             </div>
           </div>
