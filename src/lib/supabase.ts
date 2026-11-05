@@ -8,14 +8,19 @@ const supabaseUrl = rawSupabaseUrl
   .replace(/\/rest\/v1\/?$/, '')
   .replace(/\/+$/, '');
 
-const supabaseAnonKey =
+const rawAnonKey =
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   env.VITE_SUPABASE_ANON_KEY ||
   '';
 
+const supabaseAnonKey = rawAnonKey
+  .trim()
+  .replace(/^["']|["']$/g, '');
+
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
     supabaseAnonKey &&
+    supabaseAnonKey !== 'your-supabase-anon-key' &&
     supabaseUrl.startsWith('https://') &&
     !supabaseUrl.includes('YOUR_SUPABASE')
 );
