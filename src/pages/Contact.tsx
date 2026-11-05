@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { COMPANY_INFO } from '../data/company';
+import { submitInquiry } from '../lib/supabase';
 
 // Web3Forms Form Access Key (Vite environment variable with user verified default fallback)
 const WEB3FORMS_ACCESS_KEY =
@@ -62,26 +63,44 @@ export const Contact: React.FC = () => {
     setApiError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('access_key', WEB3FORMS_ACCESS_KEY);
-      formData.append('name', fullName.trim());
-      formData.append('email', email.trim());
-      formData.append('phone', phone.trim());
-      formData.append('subject', 'New Expedition Inquiry - Golis Expeditions');
-      formData.append('inquiry_subject', subject.trim());
-      formData.append('message', message.trim());
-      formData.append('from_name', fullName.trim());
-      // Honeypot spam protection (remains blank for human submissions)
-      formData.append('botcheck', '');
-
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: formData,
+      // 1. Save customer inquiry to Supabase database
+      const dbResult = await submitInquiry({
+        name: fullName,
+        email,
+        phone,
+        inquiry_subject: subject,
+        message,
       });
 
-      const data = await response.json();
+      // 2. Dispatch email notification to personal Gmail through Web3Forms
+      try {
+        const formData = new FormData();
+        formData.append('access_key', WEB3FORMS_ACCESS_KEY);
+        formData.append('name', fullName.trim());
+        formData.append('email', email.trim());
+        formData.append('phone', phone.trim());
+        formData.append('subject', 'New Expedition Inquiry - Golis Expeditions');
+        formData.append('inquiry_subject', subject.trim());
+        formData.append('message', message.trim());
+        formData.append('from_name', fullName.trim());
+        // Honeypot spam protection (remains blank for human submissions)
+        formData.append('botcheck', '');
 
-      if (response.ok && data.success) {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          console.warn('Web3Forms notification log:', data?.message || 'Email dispatch non-blocking notice');
+        }
+      } catch (emailErr) {
+        // Safe logging: Inquiry remains stored in Supabase even if email service has a transient issue
+        console.warn('Web3Forms delivery non-blocking note:', emailErr);
+      }
+
+      if (dbResult.success) {
         setSubmitted(true);
         setFullName('');
         setEmail('');
