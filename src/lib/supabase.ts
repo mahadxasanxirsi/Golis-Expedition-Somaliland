@@ -63,52 +63,8 @@ export interface InquiryStats {
 // Local storage fallback key for offline demonstration / before live credentials are bound
 const LOCAL_INQUIRIES_KEY = 'golis_supabase_inquiries_cache';
 
-const INITIAL_LOCAL_INQUIRIES: Inquiry[] = [
-  {
-    id: 'inq-001',
-    name: 'Cabdi Salaan',
-    email: 'cabdi.salaan@example.so',
-    phone: '+252 63 442 1189',
-    inquiry_subject: 'Saahil & Berbera Coast Tour',
-    message: 'Hello Golis team, we are a family of 4 planning a 5-day private excursion to the Saahil coast and Sheikh mountains next month. Please send pricing and availability.',
-    status: 'New',
-    created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-    updated_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-  },
-  {
-    id: 'inq-002',
-    name: 'Ahmed Ali',
-    email: 'ahmed.ali@travelhorn.com',
-    phone: '+252 63 699 1234',
-    inquiry_subject: 'Berbera Tour Logistics & SPU Escort',
-    message: 'We are organizing an investment delegation to Berbera port and require 4WD vehicles with verified SPU ministerial escort for 3 days.',
-    status: 'Replied',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-    updated_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    id: 'inq-003',
-    name: 'Mohamed Hassan',
-    email: 'mohamed.hassan@heritage.org',
-    phone: '+252 63 411 9900',
-    inquiry_subject: 'Somaliland Grand Tour & Laas Geel',
-    message: 'Interested in the 7-day archaeological expedition covering Laas Geel and Zeila ancient ruins. Do you arrange airport pick-up at Egal International Airport (HGA)?',
-    status: 'In Progress',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    updated_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-  },
-  {
-    id: 'inq-004',
-    name: 'Dr. Marian Egal',
-    email: 'marian.egal@archaeology-uk.org',
-    phone: '+44 7911 882233',
-    inquiry_subject: 'Daallo Cloud Forest & Mt Shimbiris Trek',
-    message: 'Research expedition to the Sanaag highlands and Maydi frankincense groves. Need veteran guides and high clearance 4x4 Land Cruisers.',
-    status: 'Closed',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-];
+// Initial empty array — no fake or sample customer inquiries
+const INITIAL_LOCAL_INQUIRIES: Inquiry[] = [];
 
 // Memory fallback when running outside browser environment (e.g. Node.js unit tests)
 let memoryInquiriesStore: Inquiry[] | null = null;
@@ -116,19 +72,26 @@ let memoryInquiriesStore: Inquiry[] | null = null;
 function getLocalInquiries(): Inquiry[] {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
     if (!memoryInquiriesStore) {
-      memoryInquiriesStore = [...INITIAL_LOCAL_INQUIRIES];
+      memoryInquiriesStore = [];
     }
     return memoryInquiriesStore;
   }
   try {
     const raw = localStorage.getItem(LOCAL_INQUIRIES_KEY);
     if (!raw) {
-      localStorage.setItem(LOCAL_INQUIRIES_KEY, JSON.stringify(INITIAL_LOCAL_INQUIRIES));
-      return INITIAL_LOCAL_INQUIRIES;
+      return [];
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    // Filter out any legacy sample data
+    return (Array.isArray(parsed) ? parsed : []).filter(
+      (inq: any) =>
+        inq &&
+        !inq.id?.startsWith('inq-00') &&
+        inq.name !== 'Cabdi Salaan' &&
+        inq.name !== 'Dr. Marian Egal'
+    );
   } catch {
-    return INITIAL_LOCAL_INQUIRIES;
+    return [];
   }
 }
 
@@ -146,6 +109,8 @@ function saveLocalInquiries(inquiries: Inquiry[]) {
 
 /**
  * Inserts a new customer inquiry into Supabase
+ * Uses pure .insert() without .select() because anonymous public visitors
+ * have INSERT permissions under Supabase RLS, but do NOT have SELECT permissions.
  */
 export async function submitInquiry(data: {
   name: string;
@@ -163,36 +128,38 @@ export async function submitInquiry(data: {
     status: 'New' as InquiryStatus,
   };
 
-  // Always mirror in local storage so administrator sees it immediately in preview
-  const localNew: Inquiry = {
+  const createdItem: Inquiry = {
     ...sanitized,
     id: `inq-${Date.now()}`,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  const locals = getLocalInquiries();
-  saveLocalInquiries([localNew, ...locals]);
 
   if (isSupabaseConfigured) {
     try {
-      const { data: inserted, error } = await supabase
+      // NOTE: Pure .insert() without .select() or .single()!
+      // This is crucial for Supabase RLS: public visitors can insert but cannot read.
+      const { error } = await supabase
         .from('inquiries')
-        .insert([sanitized])
-        .select()
-        .single();
+        .insert([sanitized]);
 
       if (error) {
-        console.warn('Supabase insert warning:', error.message);
-        return { success: true, data: localNew };
+        console.error('Supabase inquiry insert error:', error.message, error.details);
+        return { success: false, error: error.message };
       }
-      return { success: true, data: inserted as Inquiry };
-    } catch (err) {
-      console.warn('Supabase submission network error:', err);
-      return { success: true, data: localNew };
+
+      // Mirror in local store for immediate responsiveness
+      saveLocalInquiries([createdItem, ...getLocalInquiries()]);
+      return { success: true, data: createdItem };
+    } catch (err: any) {
+      console.error('Supabase submission network error:', err);
+      return { success: false, error: err?.message || 'Network error' };
     }
   }
 
-  return { success: true, data: localNew };
+  // Local store when Supabase is offline
+  saveLocalInquiries([createdItem, ...getLocalInquiries()]);
+  return { success: true, data: createdItem };
 }
 
 /**
@@ -216,7 +183,7 @@ export async function fetchInquiries(options?: {
       if (search.trim()) {
         const s = search.trim();
         query = query.or(
-          `name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%,inquiry_subject.ilike.%${s}%`
+          `name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%,inquiry_subject.ilike.%${s}%,message.ilike.%${s}%`
         );
       }
 
@@ -225,6 +192,7 @@ export async function fetchInquiries(options?: {
       const { data, error } = await query;
 
       if (!error && data) {
+        saveLocalInquiries(data as Inquiry[]);
         return { inquiries: data as Inquiry[] };
       }
       console.warn('Supabase query error, falling back to cached inquiries:', error?.message);

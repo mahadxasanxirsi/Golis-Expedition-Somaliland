@@ -161,9 +161,40 @@ export const Admin: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAdminAuthorized) {
+    if (!isAdminAuthorized) return;
+
+    loadDashboardData();
+
+    // Auto-refresh poll every 15 seconds to ensure new inquiries automatically appear
+    const pollInterval = setInterval(() => {
       loadDashboardData();
+    }, 15000);
+
+    // Supabase Realtime changes listener
+    let channel: any = null;
+    if (isSupabaseConfigured) {
+      try {
+        channel = supabase
+          .channel('inquiries_realtime_channel')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'inquiries' },
+            () => {
+              loadDashboardData();
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.warn('Realtime subscription notice:', err);
+      }
     }
+
+    return () => {
+      clearInterval(pollInterval);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, [isAdminAuthorized, selectedStatusFilter, sortOrder]);
 
   // Handle Search on Submit or Debounced

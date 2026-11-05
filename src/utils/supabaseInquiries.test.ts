@@ -26,7 +26,7 @@ test('submitInquiry records valid customer inquiries', async () => {
 test('fetchInquiryStats returns correct counts across statuses', async () => {
   const stats = await fetchInquiryStats();
 
-  assert.ok(stats.total >= 4);
+  assert.ok(stats.total >= 1);
   assert.ok(typeof stats.newCount === 'number');
   assert.ok(typeof stats.inProgressCount === 'number');
   assert.ok(typeof stats.repliedCount === 'number');
