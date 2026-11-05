@@ -41,7 +41,6 @@ as $$
     select 1
     from public.admin_users
     where id = auth.uid() 
-       or user_id = auth.uid() 
        or lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
   ) or lower(coalesce(auth.jwt() ->> 'email', '')) = 'mahdxasan0062z@gmail.com';
 $$;

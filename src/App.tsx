@@ -59,6 +59,11 @@ export default function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<Admin />} />
+            <Route path="/admin/overview" element={<Admin />} />
+            <Route path="/admin/messages" element={<Admin />} />
+            <Route path="/admin/messages/:id" element={<Admin />} />
+            <Route path="/admin/settings" element={<Admin />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

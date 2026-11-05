@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   Shield,
   Lock,
@@ -45,6 +46,10 @@ import { COMPANY_INFO } from '../data/company';
 type DashboardTab = 'overview' | 'messages' | 'settings';
 
 export const Admin: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: routeMessageId } = useParams<{ id?: string }>();
+
   // Authentication states
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(false);
@@ -57,8 +62,13 @@ export const Admin: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Dashboard navigation
-  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
+  // Dashboard navigation tab
+  const getInitialTab = (): DashboardTab => {
+    if (location.pathname.startsWith('/admin/messages')) return 'messages';
+    if (location.pathname === '/admin/settings') return 'settings';
+    return 'overview';
+  };
+  const [activeTab, setActiveTab] = useState<DashboardTab>(getInitialTab);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
   // Inquiries data states
@@ -197,6 +207,33 @@ export const Admin: React.FC = () => {
     };
   }, [isAdminAuthorized, selectedStatusFilter, sortOrder]);
 
+  // Synchronize route with activeTab and selectedInquiry
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith('/admin/messages')) {
+      setActiveTab('messages');
+      if (routeMessageId && inquiries.length > 0) {
+        const found = inquiries.find((i) => i.id === routeMessageId);
+        if (found) setSelectedInquiry(found);
+      } else if (!routeMessageId) {
+        setSelectedInquiry(null);
+      }
+    } else if (path === '/admin/settings') {
+      setActiveTab('settings');
+      setSelectedInquiry(null);
+    } else if (path === '/admin' || path === '/admin/overview') {
+      setActiveTab('overview');
+      setSelectedInquiry(null);
+    }
+  }, [location.pathname, routeMessageId, inquiries]);
+
+  // Redirect authenticated user if accessing /admin/login directly
+  useEffect(() => {
+    if (!authLoading && isAdminAuthorized && location.pathname === '/admin/login') {
+      navigate('/admin', { replace: true });
+    }
+  }, [authLoading, isAdminAuthorized, location.pathname, navigate]);
+
   // Handle Search on Submit or Debounced
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,6 +282,7 @@ export const Admin: React.FC = () => {
             setSessionUser(fallbackOwner);
             setIsAdminAuthorized(true);
             setLoginPassword('');
+            navigate('/admin');
             return;
           }
           throw new Error(error.message);
@@ -256,6 +294,7 @@ export const Admin: React.FC = () => {
             setSessionUser(data.user);
             setIsAdminAuthorized(true);
             setLoginPassword('');
+            navigate('/admin');
           } else {
             await supabase.auth.signOut();
             setAuthError('Access Denied: Your account is not on the administrator allowlist.');
@@ -275,6 +314,7 @@ export const Admin: React.FC = () => {
           setSessionUser(demoUser);
           setIsAdminAuthorized(true);
           setLoginPassword('');
+          navigate('/admin');
         } else {
           setAuthError('Invalid credentials. Use mahdxasan0062z@gmail.com and your password.');
         }
@@ -299,6 +339,7 @@ export const Admin: React.FC = () => {
       setIsAdminAuthorized(false);
       setSelectedInquiry(null);
       setActiveTab('overview');
+      navigate('/admin/login');
     }
   };
 
@@ -600,6 +641,7 @@ export const Admin: React.FC = () => {
               onClick={() => {
                 setActiveTab('overview');
                 setMobileSidebarOpen(false);
+                navigate('/admin');
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === 'overview'
@@ -618,6 +660,7 @@ export const Admin: React.FC = () => {
               onClick={() => {
                 setActiveTab('messages');
                 setMobileSidebarOpen(false);
+                navigate('/admin/messages');
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === 'messages'
@@ -640,6 +683,7 @@ export const Admin: React.FC = () => {
               onClick={() => {
                 setActiveTab('settings');
                 setMobileSidebarOpen(false);
+                navigate('/admin/settings');
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === 'settings'
@@ -804,7 +848,10 @@ export const Admin: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setActiveTab('messages')}
+                  onClick={() => {
+                    setActiveTab('messages');
+                    navigate('/admin/messages');
+                  }}
                   className="text-xs font-bold text-[#0F382A] hover:underline inline-flex items-center gap-1 cursor-pointer"
                 >
                   <span>View All Messages</span>
@@ -847,6 +894,7 @@ export const Admin: React.FC = () => {
                               onClick={() => {
                                 setSelectedInquiry(inq);
                                 setActiveTab('messages');
+                                navigate(`/admin/messages/${inq.id}`);
                               }}
                               className="text-xs font-bold text-[#0F382A] hover:underline cursor-pointer"
                             >
@@ -969,7 +1017,10 @@ export const Admin: React.FC = () => {
                           return (
                             <tr
                               key={inq.id}
-                              onClick={() => setSelectedInquiry(inq)}
+                              onClick={() => {
+                                setSelectedInquiry(inq);
+                                navigate(`/admin/messages/${inq.id}`);
+                              }}
                               className={`cursor-pointer transition-colors ${
                                 isSelected
                                   ? 'bg-[#0F382A]/5 border-l-4 border-l-[#0F382A]'
@@ -995,6 +1046,7 @@ export const Admin: React.FC = () => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedInquiry(inq);
+                                    navigate(`/admin/messages/${inq.id}`);
                                   }}
                                   className="text-xs font-bold text-[#0F382A] hover:underline cursor-pointer"
                                 >
@@ -1031,8 +1083,11 @@ export const Admin: React.FC = () => {
                     </div>
 
                     <button
-                      onClick={() => setSelectedInquiry(null)}
-                      className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                      onClick={() => {
+                        setSelectedInquiry(null);
+                        navigate('/admin/messages');
+                      }}
+                      className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
                       aria-label="Close details"
                     >
                       <X className="w-5 h-5" />
