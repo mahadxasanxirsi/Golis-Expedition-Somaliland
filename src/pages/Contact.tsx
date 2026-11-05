@@ -21,8 +21,11 @@ import { COMPANY_INFO } from '../data/company';
 import { submitInquiry } from '../lib/supabase';
 
 // Web3Forms Form Access Key (Vite environment variable with user verified default fallback)
+const envObj = (import.meta as any)?.env || {};
 const WEB3FORMS_ACCESS_KEY =
-  import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'acc99d81-43f3-4405-994c-c3b9ab640030';
+  envObj.VITE_WEB3FORMS_ACCESS_KEY ||
+  envObj.ITE_WEB3FORMS_ACCESS_KEY ||
+  'acc99d81-43f3-4405-994c-c3b9ab640030';
 
 export const Contact: React.FC = () => {
   const [fullName, setFullName] = useState('');

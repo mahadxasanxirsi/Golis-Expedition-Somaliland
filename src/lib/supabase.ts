@@ -2,7 +2,12 @@ import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 
 // Environment variables for Supabase (safe for both Vite and Node.js test runner)
 const env = (import.meta as any)?.env || {};
-const supabaseUrl = env.VITE_SUPABASE_URL || '';
+const rawSupabaseUrl = env.VITE_SUPABASE_URL || 'https://xxcarxtrjjjzyexljrkr.supabase.co';
+const supabaseUrl = rawSupabaseUrl
+  .trim()
+  .replace(/\/rest\/v1\/?$/, '')
+  .replace(/\/+$/, '');
+
 const supabaseAnonKey =
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   env.VITE_SUPABASE_ANON_KEY ||
