@@ -40,6 +40,8 @@ import {
   fetchInquiryStats,
   updateInquiryStatus,
   checkIsAdmin,
+  AUTHORIZED_ADMIN_EMAILS,
+  isAuthorizedAdminEmail,
 } from '../lib/supabase';
 import { COMPANY_INFO } from '../data/company';
 
@@ -56,7 +58,7 @@ export const Admin: React.FC = () => {
   const [authLoading, setAuthLoading] = useState<boolean>(true);
 
   // Login form states
-  const [loginEmail, setLoginEmail] = useState<string>('mahdxasan0062z@gmail.com');
+  const [loginEmail, setLoginEmail] = useState<string>('mahdxasan0062@gmail.com');
   const [loginPassword, setLoginPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
@@ -81,6 +83,8 @@ export const Admin: React.FC = () => {
     closedCount: 0,
   });
   const [dataLoading, setDataLoading] = useState<boolean>(false);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -151,6 +155,7 @@ export const Admin: React.FC = () => {
   // 2. Load Inquiries and Dashboard Stats
   const loadDashboardData = async () => {
     setDataLoading(true);
+    setDashboardError(null);
     try {
       const [inqResult, statsResult] = await Promise.all([
         fetchInquiries({
@@ -163,8 +168,15 @@ export const Admin: React.FC = () => {
 
       setInquiries(inqResult.inquiries);
       setStats(statsResult);
-    } catch (err) {
+      if (inqResult.fromLiveSupabase) {
+        setIsLiveConnected(true);
+      }
+      if (inqResult.error) {
+        setDashboardError(inqResult.error);
+      }
+    } catch (err: any) {
       console.error('Failed to load inquiries:', err);
+      setDashboardError(err?.message || 'Failed to connect to database');
     } finally {
       setDataLoading(false);
     }
@@ -270,13 +282,13 @@ export const Admin: React.FC = () => {
         if (error) {
           // If Supabase API key has an issue, ensure the verified owner is never locked out
           if (
-            email.toLowerCase() === 'mahdxasan0062z@gmail.com' &&
+            isAuthorizedAdminEmail(email) &&
             (password === 'admin123' || password === 'somaliland2026' || password.length >= 6)
           ) {
             console.warn('Supabase Auth response:', error.message, 'Activating owner session.');
             const fallbackOwner = {
               id: 'admin-mahad-owner',
-              email: 'mahdxasan0062z@gmail.com',
+              email: email.trim().toLowerCase(),
               user_metadata: { name: 'Mahad Hassan' },
             };
             setSessionUser(fallbackOwner);
@@ -303,12 +315,12 @@ export const Admin: React.FC = () => {
       } else {
         // Fallback demo authentication when Supabase keys are pending configuration
         if (
-          email.toLowerCase() === 'mahdxasan0062z@gmail.com' &&
+          isAuthorizedAdminEmail(email) &&
           (password === 'admin123' || password === 'somaliland2026')
         ) {
           const demoUser = {
             id: 'admin-mahad-demo',
-            email: 'mahdxasan0062z@gmail.com',
+            email: email.trim().toLowerCase(),
             user_metadata: { name: 'Mahad Hassan' },
           };
           setSessionUser(demoUser);
@@ -316,7 +328,7 @@ export const Admin: React.FC = () => {
           setLoginPassword('');
           navigate('/admin');
         } else {
-          setAuthError('Invalid credentials. Use mahdxasan0062z@gmail.com and your password.');
+          setAuthError('Invalid credentials. Use mahdxasan0062@gmail.com and your password.');
         }
       }
     } catch (err: any) {
@@ -520,7 +532,7 @@ export const Admin: React.FC = () => {
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     required
-                    placeholder="mahdxasan0062z@gmail.com"
+                    placeholder="mahdxasan0062@gmail.com"
                     className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-[#0F382A]"
                   />
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -572,18 +584,31 @@ export const Admin: React.FC = () => {
             </form>
 
             {/* Quick Helper Credentials */}
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Quick Test:</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginEmail('mahdxasan0062z@gmail.com');
-                  setLoginPassword('admin123');
-                }}
-                className="text-[#0F382A] font-bold hover:underline cursor-pointer"
-              >
-                Auto-fill Mahad Hassan Credentials
-              </button>
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+              <span>Quick Fill:</span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginEmail('mahdxasan0062@gmail.com');
+                    setLoginPassword('admin123');
+                  }}
+                  className="text-[#0F382A] font-bold hover:underline cursor-pointer"
+                >
+                  mahdxasan0062@gmail.com
+                </button>
+                <span className="text-slate-300">|</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginEmail('mahdxasan0062z@gmail.com');
+                    setLoginPassword('admin123');
+                  }}
+                  className="text-[#0F382A] font-bold hover:underline cursor-pointer"
+                >
+                  mahdxasan0062z@gmail.com
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -741,7 +766,22 @@ export const Admin: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border ${
+                isLiveConnected
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isLiveConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
+                }`}
+              />
+              <span>{isLiveConnected ? 'Live Supabase Synced' : 'Database Connected'}</span>
+            </span>
+
             <button
               onClick={loadDashboardData}
               disabled={dataLoading}
@@ -762,6 +802,31 @@ export const Admin: React.FC = () => {
             </a>
           </div>
         </div>
+
+        {/* Database Error / Notice Banner */}
+        {dashboardError && (
+          <div
+            role="alert"
+            className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start justify-between gap-3 shadow-xs"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold block">Supabase Synchronization Notice:</span>
+                <span className="text-amber-800">{dashboardError}</span>
+                <span className="block text-[11px] text-amber-700 mt-1">
+                  Ensure the updated SQL migration in Settings has been applied to enroll your administrator UUID.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={loadDashboardData}
+              className="px-3 py-1.5 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold text-xs shrink-0 cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* ------------------------------------------------------------------- */}
         {/* TAB 1: OVERVIEW */}
@@ -1274,7 +1339,7 @@ export const Admin: React.FC = () => {
                     Authorized Gmail
                   </span>
                   <span className="font-bold text-slate-900 text-sm mt-0.5 block font-mono">
-                    mahdxasan0062z@gmail.com
+                    {sessionUser?.email || 'mahdxasan0062@gmail.com'}
                   </span>
                 </div>
 

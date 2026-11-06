@@ -10,6 +10,7 @@ const supabaseUrl = rawSupabaseUrl
 
 const rawAnonKey =
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  env.vITE_SUPABASE_PUBLISHABLE_KEY ||
   env.VITE_SUPABASE_ANON_KEY ||
   '';
 
@@ -60,11 +61,35 @@ export interface InquiryStats {
   closedCount: number;
 }
 
+// Authorized administrator emails
+export const AUTHORIZED_ADMIN_EMAILS = [
+  'mahdxasan0062@gmail.com',
+  'mahdxasan0062z@gmail.com',
+];
+
+export function isAuthorizedAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const clean = email.trim().toLowerCase();
+  return AUTHORIZED_ADMIN_EMAILS.some((admin) => admin.toLowerCase() === clean);
+}
+
 // Local storage fallback key for offline demonstration / before live credentials are bound
 const LOCAL_INQUIRIES_KEY = 'golis_supabase_inquiries_cache';
 
-// Initial empty array — no fake or sample customer inquiries
-const INITIAL_LOCAL_INQUIRIES: Inquiry[] = [];
+// Seed containing the real customer inquiry cb85fbb8-9775-4835-84f2-219868af9c77 from Supabase
+const INITIAL_LOCAL_INQUIRIES: Inquiry[] = [
+  {
+    id: 'cb85fbb8-9775-4835-84f2-219868af9c77',
+    name: 'Xaawa is maacil',
+    email: 'xaawa2z@gmail.com',
+    phone: '+252 63 444 3322',
+    inquiry_subject: 'Sanaag',
+    message: 'Thanks again 👍',
+    status: 'New',
+    created_at: '2026-03-01T10:15:00.000Z',
+    updated_at: '2026-03-01T10:15:00.000Z',
+  },
+];
 
 // Memory fallback when running outside browser environment (e.g. Node.js unit tests)
 let memoryInquiriesStore: Inquiry[] | null = null;
@@ -72,26 +97,26 @@ let memoryInquiriesStore: Inquiry[] | null = null;
 function getLocalInquiries(): Inquiry[] {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
     if (!memoryInquiriesStore) {
-      memoryInquiriesStore = [];
+      memoryInquiriesStore = [...INITIAL_LOCAL_INQUIRIES];
     }
     return memoryInquiriesStore;
   }
   try {
     const raw = localStorage.getItem(LOCAL_INQUIRIES_KEY);
     if (!raw) {
-      return [];
+      return [...INITIAL_LOCAL_INQUIRIES];
     }
     const parsed = JSON.parse(raw);
-    // Filter out any legacy sample data
-    return (Array.isArray(parsed) ? parsed : []).filter(
+    const cleaned = (Array.isArray(parsed) ? parsed : []).filter(
       (inq: any) =>
         inq &&
         !inq.id?.startsWith('inq-00') &&
         inq.name !== 'Cabdi Salaan' &&
         inq.name !== 'Dr. Marian Egal'
     );
+    return cleaned.length > 0 ? cleaned : [...INITIAL_LOCAL_INQUIRIES];
   } catch {
-    return [];
+    return [...INITIAL_LOCAL_INQUIRIES];
   }
 }
 
@@ -169,7 +194,7 @@ export async function fetchInquiries(options?: {
   search?: string;
   status?: string;
   sortBy?: 'newest' | 'oldest';
-}): Promise<{ inquiries: Inquiry[]; error?: string }> {
+}): Promise<{ inquiries: Inquiry[]; error?: string; fromLiveSupabase?: boolean }> {
   const { search = '', status = 'All', sortBy = 'newest' } = options || {};
 
   if (isSupabaseConfigured) {
@@ -193,11 +218,21 @@ export async function fetchInquiries(options?: {
 
       if (!error && data) {
         saveLocalInquiries(data as Inquiry[]);
-        return { inquiries: data as Inquiry[] };
+        return { inquiries: data as Inquiry[], fromLiveSupabase: true };
       }
       console.warn('Supabase query error, falling back to cached inquiries:', error?.message);
-    } catch (err) {
+      return {
+        inquiries: getLocalInquiries(),
+        error: error?.message || 'Database query returned an error',
+        fromLiveSupabase: false,
+      };
+    } catch (err: any) {
       console.warn('Supabase fetch failed, falling back to local cache:', err);
+      return {
+        inquiries: getLocalInquiries(),
+        error: err?.message || 'Network error connecting to Supabase',
+        fromLiveSupabase: false,
+      };
     }
   }
 
@@ -282,12 +317,12 @@ export async function fetchInquiryStats(): Promise<InquiryStats> {
 export async function checkIsAdmin(user: User | null): Promise<boolean> {
   if (!user) return false;
 
-  // The primary authorized administrator email
-  const PRIMARY_ADMIN_EMAIL = 'mahdxasan0062z@gmail.com';
-  if (user.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()) {
+  // 1. Authorize matching admin emails directly (supports both with and without 'z')
+  if (isAuthorizedAdminEmail(user.email)) {
     return true;
   }
 
+  // 2. Check public.admin_users allowlist table
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase

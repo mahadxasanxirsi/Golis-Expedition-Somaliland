@@ -50,9 +50,9 @@ test('updateInquiryStatus updates an existing inquiry status', async () => {
   assert.equal(updatedItem?.status, 'Replied');
 });
 
-test('checkIsAdmin authorizes the primary administrator email', async () => {
-  const adminUser = {
-    id: 'user-primary-admin',
+test('checkIsAdmin authorizes both mahdxasan0062@gmail.com and mahdxasan0062z@gmail.com', async () => {
+  const adminUserZ = {
+    id: 'user-primary-admin-z',
     email: 'mahdxasan0062z@gmail.com',
     app_metadata: {},
     user_metadata: {},
@@ -60,8 +60,18 @@ test('checkIsAdmin authorizes the primary administrator email', async () => {
     created_at: new Date().toISOString(),
   } as any;
 
-  const isAuthorized = await checkIsAdmin(adminUser);
-  assert.equal(isAuthorized, true);
+  assert.equal(await checkIsAdmin(adminUserZ), true);
+
+  const adminUserNoZ = {
+    id: 'user-primary-admin-no-z',
+    email: 'mahdxasan0062@gmail.com',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  } as any;
+
+  assert.equal(await checkIsAdmin(adminUserNoZ), true);
 
   const regularUser = {
     id: 'user-random-visitor',
@@ -72,6 +82,14 @@ test('checkIsAdmin authorizes the primary administrator email', async () => {
     created_at: new Date().toISOString(),
   } as any;
 
-  const isRegularAuthorized = await checkIsAdmin(regularUser);
-  assert.equal(isRegularAuthorized, false);
+  assert.equal(await checkIsAdmin(regularUser), false);
+});
+
+test('fetchInquiries retrieves the real existing inquiry cb85fbb8-9775-4835-84f2-219868af9c77', async () => {
+  const { inquiries } = await fetchInquiries({ status: 'All' });
+  const found = inquiries.find((i) => i.id === 'cb85fbb8-9775-4835-84f2-219868af9c77');
+  assert.ok(found, 'Existing customer inquiry must be present');
+  assert.equal(found?.name, 'Xaawa is maacil');
+  assert.equal(found?.inquiry_subject, 'Sanaag');
+  assert.equal(found?.message, 'Thanks again 👍');
 });
