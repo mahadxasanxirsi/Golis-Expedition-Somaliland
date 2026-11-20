@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  AlertCircle,
   Calendar,
   Check,
   CheckCircle2,
@@ -19,6 +20,7 @@ import {
   X,
 } from 'lucide-react';
 import { COMPANY_INFO } from '../../data/company';
+import { sendLeadSubmission } from '../../lib/supabase';
 import {
   calculateHornExplorePricing,
   formatQty,
@@ -62,6 +64,7 @@ export const HornExploreBookingWidget: React.FC<HornExploreBookingWidgetProps> =
   const [paymentMethod, setPaymentMethod] = useState('zaad');
   const [notes, setNotes] = useState('');
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pricing calculations
@@ -80,30 +83,62 @@ export const HornExploreBookingWidget: React.FC<HornExploreBookingWidgetProps> =
 
   const handleOpenBooking = () => {
     setBookingConfirmed(false);
+    setSubmitError(null);
     setIsModalOpen(true);
   };
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
-    if (!fullName.trim()) errors.fullName = 'Please enter your full name';
-    if (!email.trim() || !email.includes('@')) errors.email = 'Please provide a valid email';
-    if (!phone.trim()) errors.phone = 'Please provide a phone / WhatsApp number';
+    if (fullName.trim().length < 2) errors.fullName = 'Please enter your full name';
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = 'Please provide a valid email address';
+    }
+    if (phone.trim().length < 5) errors.phone = 'Please provide a valid phone / WhatsApp number';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleConfirmBooking = (e: React.FormEvent) => {
+  const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || isSubmitting) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    setSubmitError(null);
+
+    try {
       const ref = generateBookingReference(selectedDate);
-      setBookingReference(ref);
+      const result = await sendLeadSubmission({
+        name: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        inquiry_subject: `[Booking ${ref}] ${tourTitle}`,
+        emailSubject: `New Tour Booking (${ref}) - Golis Expeditions`,
+        message: [
+          `Tour Package: ${tourTitle} (${tourSlug})`,
+          `Booking Reference: ${ref}`,
+          `Departure Date: ${selectedDate}`,
+          `Travelers: ${pricing.adultCount} Adult(s), ${pricing.childCount} Child(ren)`,
+          `Total Amount: ${pricing.totalAmountDisplay}`,
+          `Pickup Location: ${pickupLocation.trim() || 'Hargeisa'}`,
+          `Preferred Payment: ${paymentMethod.toUpperCase()}`,
+          notes.trim() ? `Notes: ${notes.trim()}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      });
+
+      if (result.success) {
+        setBookingReference(ref);
+        setBookingConfirmed(true);
+        if (onBookSuccess) onBookSuccess(ref);
+      } else {
+        setSubmitError(result.error || 'Could not submit reservation. Please try again.');
+      }
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Could not submit reservation. Please try again.');
+    } finally {
       setIsSubmitting(false);
-      setBookingConfirmed(true);
-      if (onBookSuccess) onBookSuccess(ref);
-    }, 800);
+    }
   };
 
   const presetDates = ['31-Oct-2026', '15-Nov-2026', '01-Dec-2026', '10-Jan-2027'];
@@ -431,7 +466,7 @@ export const HornExploreBookingWidget: React.FC<HornExploreBookingWidgetProps> =
                 {/* Direct Action Buttons */}
                 <div className="space-y-3">
                   <a
-                    href={`https://wa.me/${COMPANY_INFO.phoneRaw}?text=Hello%20HornExplore,%20I%20have%20booked%20${encodeURIComponent(
+                    href={`https://wa.me/${COMPANY_INFO.phoneRaw}?text=Hello%20Golis%20Expeditions,%20I%20have%20booked%20${encodeURIComponent(
                       tourTitle
                     )}%20for%20${encodeURIComponent(selectedDate)}%20(Ref:%20${bookingReference}).`}
                     target="_blank"
@@ -454,6 +489,15 @@ export const HornExploreBookingWidget: React.FC<HornExploreBookingWidgetProps> =
             ) : (
               /* Booking Form */
               <form onSubmit={handleConfirmBooking} className="p-6 sm:p-8 space-y-5" noValidate>
+                {submitError && (
+                  <div
+                    role="alert"
+                    className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs flex items-start gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
                 {/* Cost Header Review */}
                 <div className="bg-[#FAF9F5] p-4 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                   <div>
@@ -604,7 +648,7 @@ export const HornExploreBookingWidget: React.FC<HornExploreBookingWidgetProps> =
                     )}
                   </button>
                   <p className="text-[11px] text-slate-400 text-center mt-2">
-                    Official HornExplore confirmation will be transmitted to {COMPANY_INFO.email}
+                    Official {COMPANY_INFO.brandName} confirmation will be sent to {COMPANY_INFO.email}
                   </p>
                 </div>
               </form>

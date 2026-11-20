@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import {
+  AlertCircle,
   Building,
   Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
   Compass,
+  Loader2,
   MapPin,
   Phone,
   Plane,
@@ -16,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { COMPANY_INFO } from '../../data/company';
+import { sendLeadSubmission } from '../../lib/supabase';
 
 export type FeatureModalType = 'hotels-flights' | 'plan-trip' | 'travel-deals' | null;
 
@@ -301,13 +304,48 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [duration, setDuration] = useState('7 Days');
   const [travelers, setTravelers] = useState(2);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) return;
-    setSubmitted(true);
+    if (name.trim().length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || phone.trim().length < 5) {
+      setError('Please enter your name, a valid email address, and WhatsApp/phone number.');
+      return;
+    }
+    if (isSubmitting) return;
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      const result = await sendLeadSubmission({
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        inquiry_subject: `[Trip Plan] ${destination} (${duration})`,
+        emailSubject: `New Custom Trip Plan Request - Golis Expeditions`,
+        message: [
+          `Region / Focus: ${destination}`,
+          `Duration: ${duration}`,
+          `Travelers: ${travelers}`,
+          `Requested via Custom Somaliland Travel Planner`,
+        ].join('\n'),
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error || 'Could not submit trip request. Please try again.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Could not submit trip request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -345,7 +383,17 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {error && (
+              <div
+                role="alert"
+                className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs flex items-start gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 Where do you want to explore?
@@ -355,19 +403,19 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 onChange={(e) => setDestination(e.target.value)}
                 className="w-full text-xs font-semibold p-2.5 rounded-lg border border-slate-300 bg-white"
               >
-                <option value="All Highlights">
+                <option value="All Highlights (Hargeisa, Laas Geel, Berbera, Erigavo)">
                   All Highlights (Hargeisa, Laas Geel, Berbera, Erigavo)
                 </option>
-                <option value="Archaeological Focus">
+                <option value="Archaeological & Rock Art (Laas Geel, Dhagah Kure)">
                   Archaeological & Rock Art (Laas Geel, Dhagah Kure)
                 </option>
-                <option value="Coastal & Maritime">
+                <option value="Coastal & Historic Harbors (Berbera, Zeila, Saadadin Islands)">
                   Coastal & Historic Harbors (Berbera, Zeila, Saadadin Islands)
                 </option>
-                <option value="Mountain & Highlands">
+                <option value="Highlands & Daallo Escarpment (Erigavo, Mount Shimbiris, Sheikh)">
                   Highlands & Daallo Escarpment (Erigavo, Mount Shimbiris, Sheikh)
                 </option>
-                <option value="Business & Investment">
+                <option value="Logistics & Investment Consultant Tour">
                   Logistics & Investment Consultant Tour
                 </option>
               </select>
@@ -403,7 +451,7 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Your Name *</label>
                 <input
@@ -416,6 +464,17 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 />
               </div>
               <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full text-xs p-2.5 rounded-lg border border-slate-300"
+                />
+              </div>
+              <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   WhatsApp / Phone *
                 </label>
@@ -424,7 +483,7 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+252-6-344-433-34"
+                  placeholder="+252 63..."
                   className="w-full text-xs p-2.5 rounded-lg border border-slate-300"
                 />
               </div>
@@ -432,9 +491,17 @@ const PlanTripContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
             <button
               type="submit"
-              className="w-full bg-[#0F382A] hover:bg-[#164E3A] text-white font-bold py-3 rounded-xl text-xs sm:text-sm shadow transition-colors"
+              disabled={isSubmitting}
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] disabled:opacity-75 text-white font-bold py-3 rounded-xl text-xs sm:text-sm shadow transition-colors cursor-pointer"
             >
-              Submit Custom Trip Plan Request
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" />
+                  <span>Sending Trip Plan Request...</span>
+                </>
+              ) : (
+                <span>Submit Custom Trip Plan Request</span>
+              )}
             </button>
           </form>
         )}

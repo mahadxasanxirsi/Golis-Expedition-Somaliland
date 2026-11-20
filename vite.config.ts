@@ -9,7 +9,7 @@ export default defineConfig(() => {
     envPrefix: ['VITE_', 'vITE_'],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {

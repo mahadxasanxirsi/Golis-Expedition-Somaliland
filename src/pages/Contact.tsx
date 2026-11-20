@@ -9,23 +9,12 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
-  ShieldAlert,
+  MessageCircle,
   AlertCircle,
 } from 'lucide-react';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { COMPANY_INFO } from '../data/company';
-import { submitInquiry } from '../lib/supabase';
-
-// Web3Forms Form Access Key (Vite environment variable with user verified default fallback)
-const envObj = (import.meta as any)?.env || {};
-const WEB3FORMS_ACCESS_KEY =
-  envObj.VITE_WEB3FORMS_ACCESS_KEY ||
-  envObj.ITE_WEB3FORMS_ACCESS_KEY ||
-  'acc99d81-43f3-4405-994c-c3b9ab640030';
+import { sendLeadSubmission } from '../lib/supabase';
 
 export const Contact: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -66,47 +55,16 @@ export const Contact: React.FC = () => {
     setApiError(null);
 
     try {
-      // 1. Dispatch email notification to personal Gmail through Web3Forms
-      let emailDispatched = false;
-      try {
-        const formData = new FormData();
-        formData.append('access_key', WEB3FORMS_ACCESS_KEY);
-        formData.append('name', fullName.trim());
-        formData.append('email', email.trim());
-        formData.append('phone', phone.trim());
-        formData.append('subject', 'New Expedition Inquiry - Golis Expeditions');
-        formData.append('inquiry_subject', subject.trim());
-        formData.append('message', message.trim());
-        formData.append('from_name', fullName.trim());
-        // Honeypot spam protection (remains blank for human submissions)
-        formData.append('botcheck', '');
-
-        const response = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
-        if (response.ok && data?.success) {
-          emailDispatched = true;
-        } else {
-          console.warn('Web3Forms dispatch response:', data?.message);
-        }
-      } catch (emailErr) {
-        console.warn('Web3Forms delivery notice:', emailErr);
-      }
-
-      // 2. Save customer inquiry to Supabase database
-      const dbResult = await submitInquiry({
+      const result = await sendLeadSubmission({
         name: fullName,
         email,
         phone,
         inquiry_subject: subject,
         message,
+        emailSubject: 'New Expedition Inquiry - Golis Expeditions',
       });
 
-      // If either Web3Forms delivered to Gmail or Supabase saved the inquiry, report success
-      if (dbResult.success || emailDispatched) {
+      if (result.success) {
         setSubmitted(true);
         setFullName('');
         setEmail('');
@@ -117,7 +75,7 @@ export const Contact: React.FC = () => {
         setApiError(null);
       } else {
         setApiError(
-          dbResult.error || 'Sorry, your message could not be sent. Please try again.'
+          result.error || 'Sorry, your message could not be sent. Please try again.'
         );
       }
     } catch (err: any) {
@@ -155,7 +113,7 @@ export const Contact: React.FC = () => {
             Headquarters at Asha Mall, Goljano
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-display text-white">
-            Contact {COMPANY_INFO.name} Somaliland
+            Contact {COMPANY_INFO.brandName} Somaliland
           </h1>
           <p className="text-sm sm:text-base text-slate-200/90 leading-relaxed">
             {COMPANY_INFO.aboutText}
@@ -236,39 +194,39 @@ export const Contact: React.FC = () => {
               </li>
             </ul>
 
-            {/* Social Media */}
-            <div className="pt-4 border-t border-slate-100 space-y-2">
+            {/* Direct Connect Channels */}
+            <div className="pt-4 border-t border-slate-100 space-y-2.5">
               <span className="text-xs uppercase tracking-wider text-slate-400 font-bold block">
-                Connect With Us
+                Direct Expedition Channels
               </span>
-              <div className="flex items-center gap-3 text-slate-600">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <a
-                  href="#social"
-                  aria-label="Follow Golis Expeditions on Instagram"
-                  className="p-2 rounded-lg bg-slate-100 hover:text-[#0F382A] transition-colors"
+                  href={`https://wa.me/${COMPANY_INFO.phoneRaw}?text=${encodeURIComponent(
+                    'Hello Golis Expeditions, I would like to inquire about an expedition in Somaliland.'
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat with Golis Expeditions on WhatsApp"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#25D366]/15 text-[#0F382A] hover:bg-[#25D366]/25 text-xs font-bold transition-colors"
                 >
-                  <Instagram className="w-4 h-4" aria-hidden="true" />
+                  <MessageCircle className="w-4 h-4 text-[#128C7E]" aria-hidden="true" />
+                  <span>WhatsApp Desk</span>
                 </a>
                 <a
-                  href="#social"
-                  aria-label="Follow Golis Expeditions on Facebook"
-                  className="p-2 rounded-lg bg-slate-100 hover:text-[#0F382A] transition-colors"
+                  href={`mailto:${COMPANY_INFO.email}`}
+                  aria-label="Email Golis Expeditions"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 hover:text-[#0F382A] text-xs font-bold transition-colors"
                 >
-                  <Facebook className="w-4 h-4" aria-hidden="true" />
+                  <Mail className="w-4 h-4 text-[#C5A059]" aria-hidden="true" />
+                  <span>Email Desk</span>
                 </a>
                 <a
-                  href="#social"
-                  aria-label="Follow Golis Expeditions on Twitter"
-                  className="p-2 rounded-lg bg-slate-100 hover:text-[#0F382A] transition-colors"
+                  href={`tel:${COMPANY_INFO.phoneRaw}`}
+                  aria-label="Call Golis Expeditions"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 hover:text-[#0F382A] text-xs font-bold transition-colors"
                 >
-                  <Twitter className="w-4 h-4" aria-hidden="true" />
-                </a>
-                <a
-                  href="#social"
-                  aria-label="Follow Golis Expeditions on YouTube"
-                  className="p-2 rounded-lg bg-slate-100 hover:text-[#0F382A] transition-colors"
-                >
-                  <Youtube className="w-4 h-4" aria-hidden="true" />
+                  <Phone className="w-4 h-4 text-[#0F382A]" aria-hidden="true" />
+                  <span>Call Office</span>
                 </a>
               </div>
             </div>

@@ -6,6 +6,8 @@ import {
   fetchInquiryStats,
   updateInquiryStatus,
   checkIsAdmin,
+  filterAndSortInquiries,
+  sendLeadSubmission,
 } from '../lib/supabase.ts';
 
 test('submitInquiry records valid customer inquiries', async () => {
@@ -92,4 +94,72 @@ test('fetchInquiries retrieves the real existing inquiry cb85fbb8-9775-4835-84f2
   assert.equal(found?.name, 'Xaawa is maacil');
   assert.equal(found?.inquiry_subject, 'Sanaag');
   assert.equal(found?.message, 'Thanks again 👍');
+});
+
+test('filterAndSortInquiries filters by status, search term, and sorts newest/oldest', () => {
+  const sample = [
+    {
+      id: '1',
+      name: 'Alpha Guest',
+      email: 'alpha@example.com',
+      phone: '+252631111111',
+      inquiry_subject: 'Berbera Tour',
+      message: 'Beach inquiry details',
+      status: 'New' as const,
+      created_at: '2026-01-01T10:00:00.000Z',
+      updated_at: '2026-01-01T10:00:00.000Z',
+    },
+    {
+      id: '2',
+      name: 'Beta Guest',
+      email: 'beta@example.com',
+      phone: '+252632222222',
+      inquiry_subject: 'Laas Geel Tour',
+      message: 'Rock art permits',
+      status: 'Replied' as const,
+      created_at: '2026-02-01T10:00:00.000Z',
+      updated_at: '2026-02-01T10:00:00.000Z',
+    },
+    {
+      id: '3',
+      name: 'Gamma Guest',
+      email: 'gamma@example.com',
+      phone: '+252633333333',
+      inquiry_subject: 'Daallo Forest',
+      message: 'Mountain camping',
+      status: 'New' as const,
+      created_at: '2026-03-01T10:00:00.000Z',
+      updated_at: '2026-03-01T10:00:00.000Z',
+    },
+  ];
+
+  const onlyNewOldest = filterAndSortInquiries(sample, {
+    status: 'New',
+    sortBy: 'oldest',
+  });
+  assert.equal(onlyNewOldest.length, 2);
+  assert.equal(onlyNewOldest[0].id, '1');
+  assert.equal(onlyNewOldest[1].id, '3');
+
+  const searchResult = filterAndSortInquiries(sample, {
+    status: 'All',
+    search: 'rock art',
+    sortBy: 'newest',
+  });
+  assert.equal(searchResult.length, 1);
+  assert.equal(searchResult[0].id, '2');
+});
+
+test('sendLeadSubmission saves lead inquiries cleanly when offline', async () => {
+  const result = await sendLeadSubmission({
+    name: 'Booking Tester',
+    email: 'booking@example.com',
+    phone: '+252 63 555 1234',
+    inquiry_subject: '[Booking HEX-31OCT26-1001] Somaliland Grand Discovery Tour',
+    message: 'Departure: 31-Oct-2026 | Adults: 2 | Total: $700',
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.dbSaved, true);
+  assert.equal(result.data?.name, 'Booking Tester');
 });

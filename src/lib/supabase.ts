@@ -188,6 +188,135 @@ export async function submitInquiry(data: {
 }
 
 /**
+ * Filters and sorts an inquiry list locally by status, search query, and sort order
+ */
+export function filterAndSortInquiries(
+  source: Inquiry[],
+  options?: {
+    search?: string;
+    status?: string;
+    sortBy?: 'newest' | 'oldest';
+  }
+): Inquiry[] {
+  const { search = '', status = 'All', sortBy = 'newest' } = options || {};
+  let list = [...source];
+
+  if (status && status !== 'All') {
+    list = list.filter((item) => item.status.toLowerCase() === status.toLowerCase());
+  }
+
+  if (search.trim()) {
+    const s = search.trim().toLowerCase();
+    list = list.filter(
+      (item) =>
+        item.name.toLowerCase().includes(s) ||
+        item.email.toLowerCase().includes(s) ||
+        item.phone.toLowerCase().includes(s) ||
+        item.inquiry_subject.toLowerCase().includes(s) ||
+        item.message.toLowerCase().includes(s)
+    );
+  }
+
+  list.sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime();
+    const timeB = new Date(b.created_at).getTime();
+    return sortBy === 'oldest' ? timeA - timeB : timeB - timeA;
+  });
+
+  return list;
+}
+
+const DEFAULT_WEB3FORMS_ACCESS_KEY = 'acc99d81-43f3-4405-994c-c3b9ab640030';
+
+export function getWeb3FormsAccessKey(): string {
+  return (
+    env.VITE_WEB3FORMS_ACCESS_KEY ||
+    env.ITE_WEB3FORMS_ACCESS_KEY ||
+    DEFAULT_WEB3FORMS_ACCESS_KEY
+  );
+}
+
+/**
+ * Shared dual-pipeline submission:
+ * 1. Sends Gmail notification via Web3Forms
+ * 2. Saves inquiry record to Supabase public.inquiries
+ */
+export async function sendLeadSubmission(data: {
+  name: string;
+  email: string;
+  phone: string;
+  inquiry_subject: string;
+  message: string;
+  emailSubject?: string;
+}): Promise<{
+  success: boolean;
+  data?: Inquiry;
+  emailDispatched: boolean;
+  dbSaved: boolean;
+  error?: string;
+}> {
+  let emailDispatched = false;
+
+  // 1. Dispatch email notification via Web3Forms (browser environments)
+  if (typeof window !== 'undefined' && typeof fetch === 'function' && typeof FormData !== 'undefined') {
+    try {
+      const formData = new FormData();
+      formData.append('access_key', getWeb3FormsAccessKey());
+      formData.append('name', data.name.trim());
+      formData.append('email', data.email.trim());
+      formData.append('phone', data.phone.trim());
+      formData.append(
+        'subject',
+        data.emailSubject || `New Expedition Inquiry - Golis Expeditions`
+      );
+      formData.append('inquiry_subject', data.inquiry_subject.trim());
+      formData.append('message', data.message.trim());
+      formData.append('from_name', data.name.trim());
+      formData.append('botcheck', '');
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok && result?.success) {
+        emailDispatched = true;
+      } else {
+        console.warn('Web3Forms dispatch response:', result?.message);
+      }
+    } catch (emailErr) {
+      console.warn('Web3Forms delivery notice:', emailErr);
+    }
+  }
+
+  // 2. Save inquiry to Supabase database
+  const dbResult = await submitInquiry({
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    inquiry_subject: data.inquiry_subject,
+    message: data.message,
+  });
+
+  if (dbResult.success || emailDispatched) {
+    return {
+      success: true,
+      data: dbResult.data,
+      emailDispatched,
+      dbSaved: dbResult.success,
+    };
+  }
+
+  return {
+    success: false,
+    emailDispatched: false,
+    dbSaved: false,
+    error: dbResult.error || 'Sorry, your message could not be sent. Please try again.',
+  };
+}
+
+/**
  * Fetches all inquiries with search, filter, and sorting
  */
 export async function fetchInquiries(options?: {
@@ -217,19 +346,21 @@ export async function fetchInquiries(options?: {
       const { data, error } = await query;
 
       if (!error && data) {
-        saveLocalInquiries(data as Inquiry[]);
+        if (status === 'All' && !search.trim()) {
+          saveLocalInquiries(data as Inquiry[]);
+        }
         return { inquiries: data as Inquiry[], fromLiveSupabase: true };
       }
       console.warn('Supabase query error, falling back to cached inquiries:', error?.message);
       return {
-        inquiries: getLocalInquiries(),
+        inquiries: filterAndSortInquiries(getLocalInquiries(), { search, status, sortBy }),
         error: error?.message || 'Database query returned an error',
         fromLiveSupabase: false,
       };
     } catch (err: any) {
       console.warn('Supabase fetch failed, falling back to local cache:', err);
       return {
-        inquiries: getLocalInquiries(),
+        inquiries: filterAndSortInquiries(getLocalInquiries(), { search, status, sortBy }),
         error: err?.message || 'Network error connecting to Supabase',
         fromLiveSupabase: false,
       };
@@ -237,31 +368,10 @@ export async function fetchInquiries(options?: {
   }
 
   // Local filtered fallback
-  let list = getLocalInquiries();
-
-  if (status && status !== 'All') {
-    list = list.filter((item) => item.status.toLowerCase() === status.toLowerCase());
-  }
-
-  if (search.trim()) {
-    const s = search.toLowerCase();
-    list = list.filter(
-      (item) =>
-        item.name.toLowerCase().includes(s) ||
-        item.email.toLowerCase().includes(s) ||
-        item.phone.toLowerCase().includes(s) ||
-        item.inquiry_subject.toLowerCase().includes(s) ||
-        item.message.toLowerCase().includes(s)
-    );
-  }
-
-  list.sort((a, b) => {
-    const timeA = new Date(a.created_at).getTime();
-    const timeB = new Date(b.created_at).getTime();
-    return sortBy === 'oldest' ? timeA - timeB : timeB - timeA;
-  });
-
-  return { inquiries: list };
+  return {
+    inquiries: filterAndSortInquiries(getLocalInquiries(), { search, status, sortBy }),
+    fromLiveSupabase: false,
+  };
 }
 
 /**

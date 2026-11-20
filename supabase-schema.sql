@@ -88,7 +88,8 @@ $$;
 
 -- 6. Enable Table Privileges
 grant usage on schema public to anon, authenticated;
-grant select, insert on public.inquiries to anon;
+revoke select on public.inquiries from anon;
+grant insert on public.inquiries to anon;
 grant select, insert, update, delete on public.inquiries to authenticated;
 grant select on public.admin_users to authenticated;
 grant execute on function public.is_admin to anon, authenticated;

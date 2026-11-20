@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Send, CheckCircle2, Loader2, Calendar, Users, Phone, Mail, User, Shield, Compass, Sparkles } from 'lucide-react';
+import { Send, CheckCircle2, Loader2, Calendar, Phone, Mail, User, Shield, AlertCircle } from 'lucide-react';
 import { TOURS_DATA } from '../../data/tours';
 import { calculateDetailedQuote } from '../../utils/tourFilters';
+import { sendLeadSubmission } from '../../lib/supabase';
 
 interface InquiryFormProps {
   initialTourSlug?: string;
@@ -25,6 +26,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   const [message, setMessage] = useState('');
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -40,16 +42,16 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+    if (fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name is required (at least 2 characters)';
     }
     if (!email.trim()) {
       newErrors.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
-    if (!phone.trim()) {
-      newErrors.phone = 'Phone / WhatsApp is required';
+    if (phone.trim().length < 5) {
+      newErrors.phone = 'Valid phone / WhatsApp number is required';
     }
     if (!travelDate) {
       newErrors.travelDate = 'Preferred travel date is required';
@@ -62,18 +64,46 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || loading) return;
 
     setLoading(true);
+    setApiError(null);
 
-    // Simulate frontend submission latency (no external API calls)
-    setTimeout(() => {
+    try {
+      const tourName = currentTour?.title || selectedTour;
+      const estimateLine = quote
+        ? `Estimated Total: $${quote.totalAmount.toLocaleString()} ($${quote.ratePerIndividual.toLocaleString()}/person · ${quote.tierName})`
+        : '';
+      const result = await sendLeadSubmission({
+        name: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        inquiry_subject: `[Tour Quote] ${tourName}`,
+        emailSubject: `New Tour Quote Inquiry: ${tourName} - Golis Expeditions`,
+        message: [
+          `Tour Package: ${tourName}`,
+          `Preferred Departure Date: ${travelDate}`,
+          `Travelers: ${travelers}`,
+          estimateLine,
+          message.trim() ? `Special Requests: ${message.trim()}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+        if (onSuccess) onSuccess();
+      } else {
+        setApiError(result.error || 'Could not submit inquiry. Please try again.');
+      }
+    } catch (err: any) {
+      setApiError(err?.message || 'Could not submit inquiry. Please try again.');
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-      if (onSuccess) onSuccess();
-    }, 1200);
+    }
   };
 
   const handleReset = () => {
@@ -84,6 +114,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
     setTravelers(2);
     setMessage('');
     setErrors({});
+    setApiError(null);
     setSubmitted(false);
   };
 
@@ -101,16 +132,16 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
           Expedition Inquiry Received!
         </h3>
         <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
-          Thank you, <strong>{fullName}</strong>. This is a demonstration booking confirmation. In a real-world scenario, our expedition coordinator in Hargeisa would contact you within 24 hours with your customized itinerary.
+          Thank you, <strong>{fullName}</strong>. Your tour inquiry has been delivered to our expedition coordinator in Hargeisa, who will respond within 24 hours with your customized itinerary.
         </p>
         <div className="pt-2">
           <button
             type="button"
             onClick={handleReset}
-            aria-label="Submit another demonstration inquiry"
+            aria-label="Submit another expedition inquiry"
             className="text-xs font-semibold text-[#0F382A] hover:underline cursor-pointer"
           >
-            Submit Another Demo Inquiry
+            Submit Another Inquiry
           </button>
         </div>
       </div>
@@ -119,6 +150,15 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`} noValidate>
+      {apiError && (
+        <div
+          role="alert"
+          className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-xs flex items-start gap-2"
+        >
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" aria-hidden="true" />
+          <span>{apiError}</span>
+        </div>
+      )}
       {/* Selected Tour */}
       <div>
         <label htmlFor="inquiry-tour-select" className="block text-xs font-semibold text-slate-700 mb-1">
@@ -369,24 +409,24 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       <button
         type="submit"
         disabled={loading}
-        aria-label="Submit expedition tour inquiry demo"
+        aria-label="Submit expedition tour inquiry"
         className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] text-white font-bold text-xs sm:text-sm py-3 rounded-lg shadow-md transition-all duration-200 disabled:opacity-70 cursor-pointer"
       >
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" aria-hidden="true" />
-            <span>Processing Demo Booking...</span>
+            <span>Sending Tour Inquiry...</span>
           </>
         ) : (
           <>
             <Send className="w-4 h-4 text-[#C5A059]" aria-hidden="true" />
-            <span>Submit Tour Enquiry (Demo)</span>
+            <span>Submit Tour Enquiry</span>
           </>
         )}
       </button>
 
       <div className="text-[11px] text-slate-500 text-center">
-        * No payment required. This is a frontend demonstration form.
+        * No upfront payment required. Direct delivery to our Hargeisa expedition desk.
       </div>
     </form>
   );

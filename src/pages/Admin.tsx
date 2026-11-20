@@ -168,9 +168,7 @@ export const Admin: React.FC = () => {
 
       setInquiries(inqResult.inquiries);
       setStats(statsResult);
-      if (inqResult.fromLiveSupabase) {
-        setIsLiveConnected(true);
-      }
+      setIsLiveConnected(Boolean(inqResult.fromLiveSupabase));
       if (inqResult.error) {
         setDashboardError(inqResult.error);
       }
@@ -280,23 +278,6 @@ export const Admin: React.FC = () => {
         });
 
         if (error) {
-          // If Supabase API key has an issue, ensure the verified owner is never locked out
-          if (
-            isAuthorizedAdminEmail(email) &&
-            (password === 'admin123' || password === 'somaliland2026' || password.length >= 6)
-          ) {
-            console.warn('Supabase Auth response:', error.message, 'Activating owner session.');
-            const fallbackOwner = {
-              id: 'admin-mahad-owner',
-              email: email.trim().toLowerCase(),
-              user_metadata: { name: 'Mahad Hassan' },
-            };
-            setSessionUser(fallbackOwner);
-            setIsAdminAuthorized(true);
-            setLoginPassword('');
-            navigate('/admin');
-            return;
-          }
           throw new Error(error.message);
         }
 
@@ -583,26 +564,28 @@ export const Admin: React.FC = () => {
               </button>
             </form>
 
-            {/* Quick Helper Credentials */}
-            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
-              <span>Quick Fill:</span>
-              <div className="flex items-center gap-3">
+            {/* Quick Helper Email Fill */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col gap-1.5 text-xs text-slate-500">
+              <span className="font-medium">{isSupabaseConfigured ? 'Admin Email:' : 'Demo Fill:'}</span>
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                 <button
                   type="button"
                   onClick={() => {
                     setLoginEmail('mahdxasan0062@gmail.com');
-                    setLoginPassword('admin123');
+                    setAuthError(null);
+                    if (!isSupabaseConfigured) setLoginPassword('admin123');
                   }}
                   className="text-[#0F382A] font-bold hover:underline cursor-pointer"
                 >
                   mahdxasan0062@gmail.com
                 </button>
-                <span className="text-slate-300">|</span>
+                <span className="text-slate-300" aria-hidden="true">|</span>
                 <button
                   type="button"
                   onClick={() => {
                     setLoginEmail('mahdxasan0062z@gmail.com');
-                    setLoginPassword('admin123');
+                    setAuthError(null);
+                    if (!isSupabaseConfigured) setLoginPassword('admin123');
                   }}
                   className="text-[#0F382A] font-bold hover:underline cursor-pointer"
                 >

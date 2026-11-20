@@ -1,34 +1,85 @@
 import React, { useState } from 'react';
-import { Star, Quote, Send, CheckCircle2, User, Globe2 } from 'lucide-react';
-import { SectionHeading } from '../components/common/SectionHeading';
+import { Star, Send, CheckCircle2, Globe2, Loader2 } from 'lucide-react';
 import { TESTIMONIALS_DATA } from '../data/testimonials';
 import { Testimonial } from '../types';
+import { getWeb3FormsAccessKey } from '../lib/supabase';
+
+const GUEST_REVIEWS_KEY = 'golis_guest_reviews_v1';
+
+function loadStoredReviews(): Testimonial[] {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return TESTIMONIALS_DATA;
+  }
+  try {
+    const raw = localStorage.getItem(GUEST_REVIEWS_KEY);
+    if (!raw) return TESTIMONIALS_DATA;
+    const saved = JSON.parse(raw);
+    if (!Array.isArray(saved) || saved.length === 0) return TESTIMONIALS_DATA;
+    return [...saved, ...TESTIMONIALS_DATA];
+  } catch {
+    return TESTIMONIALS_DATA;
+  }
+}
 
 export const Testimonials: React.FC = () => {
-  const [reviews, setReviews] = useState<Testimonial[]>(TESTIMONIALS_DATA);
+  const [reviews, setReviews] = useState<Testimonial[]>(loadStoredReviews);
   const [authorName, setAuthorName] = useState('');
   const [country, setCountry] = useState('');
   const [tourTaken, setTourTaken] = useState('Somaliland Grand Discovery Tour');
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authorName.trim() || !reviewText.trim()) return;
+    if (!authorName.trim() || !reviewText.trim() || loading) return;
+
+    setLoading(true);
 
     const newRev: Testimonial = {
-      id: `test-${Date.now()}`,
-      name: authorName,
-      country: country || 'International Traveler',
+      id: `rev-${Date.now()}`,
+      name: authorName.trim(),
+      country: country.trim() || 'International Traveler',
       tourTaken,
       rating,
-      date: 'Just now (Demo)',
-      review: reviewText,
+      date: new Date().toLocaleDateString(),
+      review: reviewText.trim(),
     };
 
-    setReviews([newRev, ...reviews]);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(GUEST_REVIEWS_KEY);
+        const existing = raw ? (JSON.parse(raw) as Testimonial[]) : [];
+        localStorage.setItem(
+          GUEST_REVIEWS_KEY,
+          JSON.stringify([newRev, ...(Array.isArray(existing) ? existing : [])])
+        );
+      }
+    } catch (storageErr) {
+      console.warn('Could not persist review locally:', storageErr);
+    }
+
+    if (typeof fetch === 'function' && typeof FormData !== 'undefined') {
+      try {
+        const formData = new FormData();
+        formData.append('access_key', getWeb3FormsAccessKey());
+        formData.append('name', newRev.name);
+        formData.append('subject', `New Guest Review (${newRev.rating}/5) - Golis Expeditions`);
+        formData.append(
+          'message',
+          `Tour: ${newRev.tourTaken}\nCountry: ${newRev.country}\nRating: ${newRev.rating}/5\n\nReview:\n${newRev.review}`
+        );
+        formData.append('botcheck', '');
+        await fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData });
+      } catch {
+        // Non-blocking notification failure; review is persisted locally
+      }
+    }
+
+    setReviews((prev) => [newRev, ...prev]);
     setSubmitted(true);
+    setLoading(false);
     setAuthorName('');
     setCountry('');
     setReviewText('');
@@ -46,7 +97,7 @@ export const Testimonials: React.FC = () => {
             Guest Testimonials
           </h1>
           <p className="text-sm sm:text-base text-slate-200/90 leading-relaxed">
-            Read what previous adventurers, solo travelers, and cultural historians share about their experiences traversing Somaliland with Golis Expeditions. Note: Sample demonstration feedback.
+            Read what previous adventurers, solo travelers, and cultural historians share about their experiences traversing Somaliland with Golis Expeditions.
           </p>
         </div>
       </div>
@@ -93,10 +144,10 @@ export const Testimonials: React.FC = () => {
       <div className="bg-[#FAF9F5] rounded-2xl border border-slate-200 p-8 sm:p-10 max-w-2xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h3 className="text-xl font-bold text-[#161A18] font-display">
-            Leave a Demonstration Review
+            Share Your Expedition Review
           </h3>
           <p className="text-xs text-slate-500">
-            Simulate submitting your travel feedback to experience real-time React state updates on the frontend.
+            Traveled with Golis Expeditions? Leave your verified feedback below.
           </p>
         </div>
 
@@ -183,10 +234,20 @@ export const Testimonials: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] text-white font-bold text-xs sm:text-sm py-2.5 rounded-lg shadow transition-colors"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] disabled:opacity-75 text-white font-bold text-xs sm:text-sm py-2.5 rounded-lg shadow transition-colors cursor-pointer"
             >
-              <Send className="w-4 h-4 text-[#C5A059]" />
-              <span>Submit Demonstration Review</span>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" />
+                  <span>Submitting Review...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 text-[#C5A059]" />
+                  <span>Submit Guest Review</span>
+                </>
+              )}
             </button>
           </form>
         )}

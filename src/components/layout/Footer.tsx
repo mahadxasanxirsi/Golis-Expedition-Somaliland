@@ -7,32 +7,54 @@ import {
   Mail,
   Send,
   CheckCircle2,
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
+  Loader2,
+  MessageCircle,
   Shield,
   ArrowRight,
   CreditCard,
-  Building2,
-  Sparkles,
 } from 'lucide-react';
 import { COMPANY_INFO } from '../../data/company';
-import { DESTINATIONS_DATA } from '../../data/destinations';
+import { sendLeadSubmission } from '../../lib/supabase';
 
 export const Footer: React.FC = () => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
   const [newsletterError, setNewsletterError] = useState('');
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+    const cleanEmail = newsletterEmail.trim();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       setNewsletterError('Please provide a valid email address.');
       return;
     }
+    if (newsletterLoading) return;
+
     setNewsletterError('');
-    setNewsletterSubmitted(true);
+    setNewsletterLoading(true);
+
+    try {
+      const result = await sendLeadSubmission({
+        name: 'Newsletter Subscriber',
+        email: cleanEmail,
+        phone: 'Newsletter Opt-In',
+        inquiry_subject: '[Newsletter] Monthly Deals Subscription',
+        emailSubject: 'New Newsletter Subscriber - Golis Expeditions',
+        message: `Website visitor subscribed to monthly expedition deals: ${cleanEmail}`,
+      });
+
+      if (result.success) {
+        setNewsletterSubmitted(true);
+        setNewsletterEmail('');
+      } else {
+        setNewsletterError(result.error || 'Subscription failed. Please try again.');
+      }
+    } catch {
+      setNewsletterError('Subscription failed. Please try again.');
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   return (
@@ -121,11 +143,21 @@ export const Footer: React.FC = () => {
                 </div>
                 <button
                   type="submit"
+                  disabled={newsletterLoading}
                   aria-label="Subscribe to monthly deals newsletter"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#C5A059] hover:bg-[#b08e4d] text-[#09231A] font-bold text-xs sm:text-sm px-6 py-3 rounded-lg transition-colors shrink-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#C5A059] hover:bg-[#b08e4d] disabled:opacity-75 text-[#09231A] font-bold text-xs sm:text-sm px-6 py-3 rounded-lg transition-colors shrink-0 cursor-pointer"
                 >
-                  <span>Subscribe</span>
-                  <Send className="w-3.5 h-3.5" aria-hidden="true" />
+                  {newsletterLoading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                      <span>Subscribing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Subscribe</span>
+                      <Send className="w-3.5 h-3.5" aria-hidden="true" />
+                    </>
+                  )}
                 </button>
               </form>
             )}
@@ -172,34 +204,34 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 flex items-center gap-3 text-slate-400">
+            <div className="pt-2 flex flex-wrap items-center gap-2.5 text-slate-300">
               <a
-                href="#social"
-                aria-label="Follow HornExplore on Instagram"
-                className="p-2 rounded-full bg-[#0E3527] hover:text-[#C5A059] transition-colors"
+                href={`https://wa.me/${COMPANY_INFO.phoneRaw}?text=${encodeURIComponent(
+                  'Hello Golis Expeditions, I would like to plan a Somaliland trip.'
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat with Golis Expeditions on WhatsApp"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0E3527] hover:text-[#C5A059] text-xs font-semibold transition-colors"
               >
-                <Instagram className="w-4 h-4" aria-hidden="true" />
+                <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" aria-hidden="true" />
+                <span>WhatsApp</span>
               </a>
               <a
-                href="#social"
-                aria-label="Follow HornExplore on Facebook"
-                className="p-2 rounded-full bg-[#0E3527] hover:text-[#C5A059] transition-colors"
+                href={`mailto:${COMPANY_INFO.email}`}
+                aria-label="Email Golis Expeditions"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0E3527] hover:text-[#C5A059] text-xs font-semibold transition-colors"
               >
-                <Facebook className="w-4 h-4" aria-hidden="true" />
+                <Mail className="w-3.5 h-3.5 text-[#C5A059]" aria-hidden="true" />
+                <span>Email</span>
               </a>
               <a
-                href="#social"
-                aria-label="Follow HornExplore on Twitter"
-                className="p-2 rounded-full bg-[#0E3527] hover:text-[#C5A059] transition-colors"
+                href={`tel:${COMPANY_INFO.phoneRaw}`}
+                aria-label="Call Golis Expeditions"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0E3527] hover:text-[#C5A059] text-xs font-semibold transition-colors"
               >
-                <Twitter className="w-4 h-4" aria-hidden="true" />
-              </a>
-              <a
-                href="#social"
-                aria-label="Follow HornExplore on YouTube"
-                className="p-2 rounded-full bg-[#0E3527] hover:text-[#C5A059] transition-colors"
-              >
-                <Youtube className="w-4 h-4" aria-hidden="true" />
+                <Phone className="w-3.5 h-3.5 text-[#C5A059]" aria-hidden="true" />
+                <span>Call</span>
               </a>
             </div>
           </div>

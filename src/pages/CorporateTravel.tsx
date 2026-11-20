@@ -17,6 +17,7 @@ import { SectionHeading } from '../components/common/SectionHeading';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 import { SOMALILAND_IMAGES } from '../data/images';
 import { COMPANY_INFO } from '../data/company';
+import { sendLeadSubmission } from '../lib/supabase';
 
 export const CorporateTravel: React.FC = () => {
   const [companyName, setCompanyName] = useState('');
@@ -31,19 +32,50 @@ export const CorporateTravel: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!companyName.trim() || !contactPerson.trim() || !email.trim() || !phone.trim()) {
-      setError('Please fill in all required fields.');
+    if (
+      contactPerson.trim().length < 2 ||
+      !companyName.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+      phone.trim().length < 5
+    ) {
+      setError('Please fill in all required fields with a valid email and phone number.');
       return;
     }
+    if (loading) return;
+
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const result = await sendLeadSubmission({
+        name: contactPerson.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        inquiry_subject: `[Corporate] ${companyName.trim()} - ${serviceType}`,
+        emailSubject: `New Corporate Travel Proposal Request - ${companyName.trim()}`,
+        message: [
+          `Company / Organization: ${companyName.trim()}`,
+          `Contact Person: ${contactPerson.trim()}`,
+          `Delegation Size: ${delegationSize}`,
+          `Primary Service: ${serviceType}`,
+          requirements.trim()
+            ? `Requirements: ${requirements.trim()}`
+            : 'Requirements: Corporate travel proposal & logistics quote requested.',
+        ].join('\n'),
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error || 'Could not submit your corporate inquiry. Please try again.');
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Could not submit your corporate inquiry. Please try again.');
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-    }, 1200);
+    }
   };
 
   return (
@@ -156,11 +188,18 @@ export const CorporateTravel: React.FC = () => {
                 Corporate Inquiry Received
               </h4>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Thank you, <strong>{contactPerson}</strong> at <strong>{companyName}</strong>. Our enterprise team will prepare a demonstration proposal.
+                Thank you, <strong>{contactPerson}</strong> at <strong>{companyName}</strong>. Your delegation proposal request has been delivered to our Hargeisa corporate desk and saved for immediate follow-up.
               </p>
               <button
                 type="button"
-                onClick={() => setSubmitted(false)}
+                onClick={() => {
+                  setSubmitted(false);
+                  setCompanyName('');
+                  setContactPerson('');
+                  setEmail('');
+                  setPhone('');
+                  setRequirements('');
+                }}
                 aria-label="Submit another corporate travel request"
                 className="text-xs font-bold text-[#0F382A] hover:underline cursor-pointer"
               >
@@ -292,8 +331,8 @@ export const CorporateTravel: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                aria-label="Submit corporate travel proposal demo"
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] text-white font-bold text-xs sm:text-sm py-3 rounded-lg shadow transition-colors cursor-pointer"
+                aria-label="Submit corporate travel proposal"
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#0F382A] hover:bg-[#164E3A] disabled:opacity-75 text-white font-bold text-xs sm:text-sm py-3 rounded-lg shadow transition-colors cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -303,7 +342,7 @@ export const CorporateTravel: React.FC = () => {
                 ) : (
                   <>
                     <Send className="w-4 h-4 text-[#C5A059]" aria-hidden="true" />
-                    <span>Submit Corporate Inquiry (Demo)</span>
+                    <span>Submit Corporate Inquiry</span>
                   </>
                 )}
               </button>
